@@ -83,6 +83,7 @@ Valid providers are :
 * [GitLab](#gitlab-auth-provider)
 * [LinkedIn](#linkedin-auth-provider)
 * [Discord](#discord-auth-provider)
+* [Bitbucket](#bitbucket-auth-provider)
 
 The provider can be selected using the `provider` configuration value.
 
@@ -237,6 +238,17 @@ In this case, you can set the `-skip-oidc-discovery` option, and supply those re
 1. Create a new Discord Application from <https://discordapp.com/developers/applications/>
 2. Under OAuth2, Add Redirect to `https://internal.yourcompany.com/oauth2/callback`
 
+### Bitbucket Auth Provider
+
+The [Bitbucket](https://bitbucket.org) provider.
+
+For Bitbucket, follow the [registration steps to create an OAuth client](https://confluence.atlassian.com/bitbucket/oauth-on-bitbucket-cloud-238027431.html#OAuthonBitbucketCloud-Createaconsumer).
+
+The Bitbucket auth provider supports one additional parameter to restrict
+authentication to members of a given Bitbucket team. Restricting by team is
+normally accompanied with `--email-domain=*`
+
+    -bitbucket-team="": restrict logins to members of this team
 
 ## Email Authentication
 
