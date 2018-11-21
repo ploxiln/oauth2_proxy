@@ -85,11 +85,12 @@ func decodeSessionStatePlain(v string) (s *SessionState, err error) {
 }
 
 func DecodeSessionState(v string, c *cookie.Cipher) (s *SessionState, err error) {
-	if c == nil {
+	chunks := strings.Split(v, "|")
+
+	if c == nil || len(chunks) == 1 {
 		return decodeSessionStatePlain(v)
 	}
 
-	chunks := strings.Split(v, "|")
 	if len(chunks) != 4 {
 		err = fmt.Errorf("invalid number of fields (got %d expected 4)", len(chunks))
 		return
