@@ -1,29 +1,61 @@
 oauth2_proxy
-=================
+============
 
 A reverse proxy and static file server that provides authentication using Providers (Google, GitHub, and others)
 to validate accounts by email, domain or group.
 
 [![Build Status](https://secure.travis-ci.org/ploxiln/oauth2_proxy.svg?branch=master)](http://travis-ci.org/ploxiln/oauth2_proxy)
 
-
 ![Sign In Page](https://cloud.githubusercontent.com/assets/45028/4970624/7feb7dd8-6886-11e4-93e0-c9904af44ea8.png)
+
+
+## This Fork
+
+This repo [ploxiln/oauth2_proxy](https://github.com/ploxiln/oauth2_proxy)
+is a fork of [bitly/oauth2_proxy](https://github.com/bitly/oauth2_proxy)
+which is [no longer maintained](https://github.com/bitly/oauth2_proxy/issues/628#issuecomment-417121636).
+
+When your organization finds itself with a few instances of `oauth2_proxy` controlling access
+to different services on different domains for different groups,
+you may be interested in a more sophisticated auth system like [buzfeed/sso](https://github.com/buzzfeed/sso).
+
 
 ## Architecture
 
 ![OAuth2 Proxy Architecture](https://cloud.githubusercontent.com/assets/45028/8027702/bd040b7a-0d6a-11e5-85b9-f8d953d04f39.png)
 
+
 ## Installation
 
-1. Download [Prebuilt Binary](https://github.com/bitly/oauth2_proxy/releases) (current release is `v2.2`) or build with `$ go get github.com/bitly/oauth2_proxy` which will put the binary in `$GOROOT/bin`
-Prebuilt binaries can be validated by extracting the file and verifying it against the `sha256sum.txt` checksum file provided for each release starting with version `v2.3`.
+### Download binary
+
+You can download a [Prebuilt Binary](https://github.com/ploxiln/oauth2_proxy/releases).
+Prebuilt binaries can be validated by extracting the file and verifying it against the `sha256sum.txt` checksum file provided for each release:
+
 ```
-sha256sum -c sha256sum.txt 2>&1 | grep OK
+shasum -a 256 -c sha256sum.txt 2>&1 | grep OK
 oauth2_proxy-2.3.linux-amd64: OK
 ```
+
+### Build from source
+
+The source needs to be checked-out into GOPATH under the old "bitly/" import path because internal
+package imports have not been changed over yet. Dependencies are managed with [dep](https://github.com/golang/dep/).
+
+```sh
+git clone git@github.com:ploxiln/oauth2_proxy.git $GOPATH/src/github.com/bitly/oauth2_proxy
+cd $GOPATH/src/github.com/bitly/oauth2_proxy
+dep ensure
+go build
+```
+
+
+## Setup
+
 2. Select a Provider and Register an OAuth Application with a Provider
 3. Configure OAuth2 Proxy using config file, command line options, or environment variables
 4. Configure SSL or Deploy behind a SSL endpoint (example provided for Nginx)
+
 
 ## OAuth Provider Configuration
 
