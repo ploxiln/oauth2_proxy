@@ -49,7 +49,7 @@ func TestValidatorOverwriteEmailListDirectly(t *testing.T) {
 		"plugh@example.com",
 	})
 	domains := []string(nil)
-	updated := make(chan bool)
+	updated := make(chan bool, 1)
 	validator := vt.NewValidator(domains, updated)
 
 	if !validator("xyzzy@example.com") {
