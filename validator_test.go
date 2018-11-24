@@ -20,7 +20,8 @@ func NewValidatorTest(t *testing.T) *ValidatorTest {
 	if err != nil {
 		t.Fatal("failed to create temp file: " + err.Error())
 	}
-	vt.done = make(chan bool, 1)
+	t.Logf("%s using temp file %s", t.Name(), vt.auth_email_file.Name())
+	vt.done = make(chan bool)
 	return vt
 }
 
@@ -29,20 +30,17 @@ func (vt *ValidatorTest) TearDown() {
 	os.Remove(vt.auth_email_file.Name())
 }
 
-func (vt *ValidatorTest) NewValidator(domains []string,
-	updated chan<- bool) func(string) bool {
-	return newValidatorImpl(domains, vt.auth_email_file.Name(),
-		vt.done, func() {
-			if vt.update_seen == false {
-				updated <- true
-				vt.update_seen = true
-			}
-		})
+func (vt *ValidatorTest) NewValidator(domains []string, updated chan<- bool) func(string) bool {
+	return newValidatorImpl(domains, vt.auth_email_file.Name(), vt.done, func() {
+		if vt.update_seen == false {
+			updated <- true
+			vt.update_seen = true
+		}
+	})
 }
 
 // This will close vt.auth_email_file.
 func (vt *ValidatorTest) WriteEmails(t *testing.T, emails []string) {
-	defer vt.auth_email_file.Close()
 	vt.auth_email_file.WriteString(strings.Join(emails, "\n"))
 	if err := vt.auth_email_file.Close(); err != nil {
 		t.Fatal("failed to close temp file " +
