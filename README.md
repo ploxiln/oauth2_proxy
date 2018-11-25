@@ -149,7 +149,7 @@ Whether you are using GitLab.com or self-hosting GitLab, follow [these steps to 
 
 The GitLab auth provider supports one additional parameter to restrict authentication to Group level access. Restricting by group is normally accompanied with `--email-domain=*`
 
-    -gitlab-group="": restrict logins to members of any of these groups (full path), separated by a comma
+    -gitlab-group="": restrict logins to members of this group (full path) (may be given multiple times)
 
 If you are using self-hosted GitLab, make sure you set the following to the appropriate URL:
 
@@ -229,7 +229,7 @@ Usage of oauth2_proxy:
   -footer string: custom footer string. Use "-" to disable default footer.
   -github-org string: restrict logins to members of this organisation
   -github-team string: restrict logins to members of any of these teams (slug), separated by a comma
-  -gitlab-group string: restrict logins to members of any of these groups (full path), separated by a comma
+  -gitlab-group string: restrict logins to members of this group (full path) (may be given multiple times)
   -google-admin-email string: the google admin to impersonate for api calls
   -google-group value: restrict logins to members of this google group (may be given multiple times).
   -google-service-account-json string: the path to the service account json credentials
