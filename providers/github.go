@@ -58,22 +58,18 @@ func (p *GitHubProvider) SetOrgTeam(org, team string) {
 
 func (p *GitHubProvider) hasOrg(accessToken string) (bool, error) {
 	// https://developer.github.com/v3/orgs/#list-your-organizations
-
 	var orgs []struct {
 		Login string `json:"login"`
 	}
-
 	type orgsPage []struct {
 		Login string `json:"login"`
 	}
 
-	pn := 1
-	for {
+	for pn := 1; pn <= 10; pn++ {
 		params := url.Values{
 			"limit": {"100"},
 			"page":  {strconv.Itoa(pn)},
 		}
-
 		endpoint := &url.URL{
 			Scheme:   p.ValidateURL.Scheme,
 			Host:     p.ValidateURL.Host,
@@ -107,7 +103,6 @@ func (p *GitHubProvider) hasOrg(accessToken string) (bool, error) {
 		}
 
 		orgs = append(orgs, op...)
-		pn += 1
 	}
 
 	var presentOrgs []string
@@ -137,7 +132,6 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 	params := url.Values{
 		"limit": {"100"},
 	}
-
 	endpoint := &url.URL{
 		Scheme:   p.ValidateURL.Scheme,
 		Host:     p.ValidateURL.Host,
@@ -150,7 +144,8 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 	var hasOrg bool
 	presentOrgs := make(map[string]bool)
 	var presentTeams []string
-	for {
+
+	for i := 0; i < 10; i++ {
 		req, _ := http.NewRequest("GET", team_url, nil)
 		req.Header.Set("Accept", "application/vnd.github.hellcat-preview+json")
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", accessToken))
