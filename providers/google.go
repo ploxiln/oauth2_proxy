@@ -180,7 +180,8 @@ func getAdminService(adminEmail string, credentialsReader io.Reader) *admin.Serv
 
 func userInGroup(service *admin.Service, groups []string, email string) bool {
 	pageToken := ""
-	for {
+	// limit to 10 pages/requests
+	for i := 0; i < 10; i++ {
 		req := service.Groups.List().UserKey(email)
 		if pageToken != "" {
 			req.PageToken(pageToken)
@@ -204,6 +205,8 @@ func userInGroup(service *admin.Service, groups []string, email string) bool {
 		}
 		pageToken = resp.NextPageToken
 	}
+	log.Printf("WARNING: %s has more than 10 pages of groups", email)
+	return false
 }
 
 // ValidateGroup validates that the provided email exists in the configured Google
