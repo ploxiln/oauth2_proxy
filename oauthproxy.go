@@ -259,10 +259,6 @@ func (p *OAuthProxy) redeemCode(host, code string) (s *providers.SessionState, e
 func (p *OAuthProxy) MakeSessionCookie(req *http.Request, value string, expiration time.Duration, now time.Time) *http.Cookie {
 	if value != "" {
 		value = cookie.SignedValue(p.CookieSeed, p.CookieName, value, now)
-		if len(value) > 4096 {
-			// Cookies cannot be larger than 4kb
-			log.Printf("WARNING - Cookie Size: %d bytes", len(value))
-		}
 	}
 	return p.makeCookie(req, p.CookieName, value, expiration, now)
 }
@@ -280,6 +276,11 @@ func (p *OAuthProxy) makeCookie(req *http.Request, name string, value string, ex
 		if !strings.HasSuffix(domain, p.CookieDomain) {
 			log.Printf("Warning: request host is %q but using configured cookie domain of %q", domain, p.CookieDomain)
 		}
+	}
+	if len(value) > 3600 {
+		// nginx default response header limit is 4KiB, other software may have similar limits
+		// threshold includes margin for header name, cookie name, other cookie options
+		log.Printf("WARNING - %s cookie is very big: %d bytes", name, len(value))
 	}
 
 	return &http.Cookie{

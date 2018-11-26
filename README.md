@@ -191,6 +191,10 @@ OpenID Connect is a spec for OAUTH 2.0 + identity that is implemented by many ma
     -cookie-secure=false
     -email-domain example.com
 
+If you enable cookie-refresh, it should be set to the same duration as token lifetime
+(due to a limitation in `oauth2_proxy` - see [bitly/oauth2_proxy#620](https://github.com/bitly/oauth2_proxy/pull/620)).
+
+
 ## Email Authentication
 
 To authorize by email domain use `--email-domain=yourcompany.com`. To authorize individual email addresses use `--authenticated-emails-file=/path/to/file` with one email per line. To authorize all email addresses use `--email-domain=*`.
