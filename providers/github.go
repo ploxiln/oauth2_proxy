@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -57,22 +58,18 @@ func (p *GitHubProvider) SetOrgTeam(org, team string) {
 
 func (p *GitHubProvider) hasOrg(accessToken string) (bool, error) {
 	// https://developer.github.com/v3/orgs/#list-your-organizations
-
 	var orgs []struct {
 		Login string `json:"login"`
 	}
-
 	type orgsPage []struct {
 		Login string `json:"login"`
 	}
 
-	pn := 1
-	for {
+	for pn := 1; pn <= 10; pn++ {
 		params := url.Values{
-			"limit": {"200"},
+			"limit": {"100"},
 			"page":  {strconv.Itoa(pn)},
 		}
-
 		endpoint := &url.URL{
 			Scheme:   p.ValidateURL.Scheme,
 			Host:     p.ValidateURL.Host,
@@ -106,7 +103,6 @@ func (p *GitHubProvider) hasOrg(accessToken string) (bool, error) {
 		}
 
 		orgs = append(orgs, op...)
-		pn += 1
 	}
 
 	var presentOrgs []string
@@ -134,54 +130,67 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 	}
 
 	params := url.Values{
-		"limit": {"200"},
+		"limit": {"100"},
 	}
-
 	endpoint := &url.URL{
 		Scheme:   p.ValidateURL.Scheme,
 		Host:     p.ValidateURL.Host,
 		Path:     path.Join(p.ValidateURL.Path, "/user/teams"),
 		RawQuery: params.Encode(),
 	}
-	req, _ := http.NewRequest("GET", endpoint.String(), nil)
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	req.Header.Set("Authorization", fmt.Sprintf("token %s", accessToken))
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return false, err
-	}
+	team_url := endpoint.String()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		return false, err
-	}
-	if resp.StatusCode != 200 {
-		return false, fmt.Errorf(
-			"got %d from %q %s", resp.StatusCode, endpoint.String(), body)
-	}
-
-	if err := json.Unmarshal(body, &teams); err != nil {
-		return false, fmt.Errorf("%s unmarshaling %s", err, body)
-	}
-
+	pattern := regexp.MustCompile(`<([^>]+)>; rel="next"`)
 	var hasOrg bool
 	presentOrgs := make(map[string]bool)
 	var presentTeams []string
-	for _, team := range teams {
-		presentOrgs[team.Org.Login] = true
-		if p.Org == team.Org.Login {
-			hasOrg = true
-			ts := strings.Split(p.Team, ",")
-			for _, t := range ts {
-				if t == team.Slug {
-					log.Printf("Found Github Organization:%q Team:%q (Name:%q)", team.Org.Login, team.Slug, team.Name)
-					return true, nil
-				}
-			}
-			presentTeams = append(presentTeams, team.Slug)
+
+	for i := 0; i < 10; i++ {
+		req, _ := http.NewRequest("GET", team_url, nil)
+		req.Header.Set("Accept", "application/vnd.github.hellcat-preview+json")
+		req.Header.Set("Authorization", fmt.Sprintf("token %s", accessToken))
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return false, err
 		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return false, err
+		}
+		if resp.StatusCode != 200 {
+			return false, fmt.Errorf(
+				"got %d from %q %s", resp.StatusCode, endpoint.String(), body)
+		}
+
+		if err := json.Unmarshal(body, &teams); err != nil {
+			return false, fmt.Errorf("%s unmarshaling %s", err, body)
+		}
+
+		for _, team := range teams {
+			presentOrgs[team.Org.Login] = true
+			if p.Org == team.Org.Login {
+				hasOrg = true
+				ts := strings.Split(p.Team, ",")
+				for _, t := range ts {
+					if t == team.Slug {
+						log.Printf("Found Github Organization:%q Team:%q (Name:%q)",
+							team.Org.Login, team.Slug, team.Name)
+						return true, nil
+					}
+				}
+				presentTeams = append(presentTeams, team.Slug)
+			}
+		}
+
+		matches := pattern.FindStringSubmatch(resp.Header["Link"][0])
+		if len(matches) == 0 {
+			break
+		}
+		team_url = matches[1]
 	}
+
 	if hasOrg {
 		log.Printf("Missing Team:%q from Org:%q in teams: %v", p.Team, p.Org, presentTeams)
 	} else {
