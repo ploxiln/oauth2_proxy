@@ -57,8 +57,7 @@ func (p *GitLabProvider) hasGroup(accessToken string) (bool, error) {
 		FullPath string `json:"full_path"`
 	}
 
-	pn := 1
-	for {
+	for pn := 1; pn <= 10; pn++ {
 		params := url.Values{
 			"access_token": {accessToken},
 			"per_page":     {"100"},
@@ -93,8 +92,6 @@ func (p *GitLabProvider) hasGroup(accessToken string) (bool, error) {
 				}
 			}
 		}
-
-		pn += 1
 	}
 
 	return false, nil
