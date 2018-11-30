@@ -1,7 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 EXIT_CODE=0
+
 echo "gofmt"
-diff -u <(echo -n) <(gofmt -d $(find . -type f -name '*.go' -not -path "./vendor/*")) || EXIT_CODE=1
+FMTDIFF="$(gofmt -d $(find . -type f -name '*.go' -not -path './vendor/*'))"
+if [ -n "$FMTDIFF" ]; then
+    printf '%s\n' "$FMTDIFF"
+    EXIT_CODE=1
+fi
+
 for pkg in $(go list ./... | grep -v '/vendor/' ); do
     echo "testing $pkg"
     echo "go vet $pkg"
@@ -11,4 +17,6 @@ for pkg in $(go list ./... | grep -v '/vendor/' ); do
     echo "go test -v -race $pkg"
     GOMAXPROCS=4 go test -v -timeout 90s0s -race "$pkg" || EXIT_CODE=1
 done
+
+[ $EXIT_CODE = 0 ] || echo "FAIL" 1>&2
 exit $EXIT_CODE
