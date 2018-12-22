@@ -37,6 +37,15 @@ shasum -a 256 -c sha256sum.txt 2>&1 | grep OK
 oauth2_proxy-2.3.linux-amd64: OK
 ```
 
+### Pull docker image
+
+see https://hub.docker.com/r/ploxiln/oauth2_proxy
+
+```
+docker pull ploxiln/oauth2_proxy
+docker run ... -p 4180:4180 -e OAUTH2_PROXY_CLIENT_SECRET ploxiln/oauth2_proxy oauth2_proxy --provider=github ...
+```
+
 ### Build from source
 
 The source needs to be checked-out into GOPATH under the old "bitly/" import path because internal
