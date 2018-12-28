@@ -17,4 +17,4 @@ EXPOSE 4180
 COPY --from=0  /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=0  /usr/local/bin/oauth2_proxy        /usr/local/bin/
 USER www-data
-CMD ["oauth2_proxy"]
+ENTRYPOINT ["oauth2_proxy"]
