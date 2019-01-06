@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mreiferson/go-options"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,6 +71,23 @@ func TestGoogleGroupInvalidFile(t *testing.T) {
 func TestInitializedOptions(t *testing.T) {
 	o := testOptions()
 	assert.Equal(t, nil, o.Validate())
+}
+
+func TestMultiGitLabGroupOptions(t *testing.T) {
+	flagSet := mainFlagSet()
+	flagSet.Parse([]string{"--gitlab-group=one", "-gitlab-group=two"})
+	opts := NewOptions()
+	cfg := make(EnvOptions)
+	options.Resolve(opts, flagSet, cfg)
+
+	assert.Equal(t, []string{"one", "two"}, opts.GitLabGroups)
+
+	flagSet = mainFlagSet()
+	flagSet.Parse([]string{"--upstream=http://127.0.0.1:2000"})
+	opts = NewOptions()
+	options.Resolve(opts, flagSet, cfg)
+
+	assert.Equal(t, 0, len(opts.GitLabGroups))
 }
 
 // Note that it's not worth testing nonparseable URLs, since url.Parse()

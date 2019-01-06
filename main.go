@@ -13,8 +13,7 @@ import (
 	"github.com/mreiferson/go-options"
 )
 
-func main() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+func mainFlagSet() *flag.FlagSet {
 	flagSet := flag.NewFlagSet("oauth2_proxy", flag.ExitOnError)
 
 	emailDomains := StringArray{}
@@ -23,9 +22,6 @@ func main() {
 	skipAuthRegex := StringArray{}
 	googleGroups := StringArray{}
 	gitlabGroups := StringArray{}
-
-	config := flagSet.String("config", "", "path to config file")
-	showVersion := flagSet.Bool("version", false, "print version string")
 
 	flagSet.String("http-address", "127.0.0.1:4180", "[http://]<addr>:<port> or unix://<path> to listen on for HTTP clients")
 	flagSet.String("https-address", ":443", "<addr>:<port> to listen on for HTTPS clients")
@@ -84,6 +80,16 @@ func main() {
 	flagSet.String("approval-prompt", "force", "OAuth approval_prompt")
 
 	flagSet.String("signature-key", "", "GAP-Signature request signature key (algorithm:secretkey)")
+
+	return flagSet
+}
+
+func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	flagSet := mainFlagSet()
+
+	config := flagSet.String("config", "", "path to config file")
+	showVersion := flagSet.Bool("version", false, "print version string")
 
 	flagSet.Parse(os.Args[1:])
 
