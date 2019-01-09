@@ -12,7 +12,7 @@ to validate accounts by email, domain or group.
 ## This Fork
 
 This repo [ploxiln/oauth2_proxy](https://github.com/ploxiln/oauth2_proxy)
-is a fork of [bitly/oauth2_proxy](https://github.com/bitly/oauth2_proxy)
+is a fork of [ploxiln/oauth2_proxy](https://github.com/ploxiln/oauth2_proxy)
 which is [no longer maintained](https://github.com/bitly/oauth2_proxy/issues/628#issuecomment-417121636).
 
 When your organization finds itself with a few instances of `oauth2_proxy` controlling access
@@ -48,12 +48,11 @@ docker run ... -p 4180:4180 -e OAUTH2_PROXY_CLIENT_SECRET ploxiln/oauth2_proxy o
 
 ### Build from source
 
-The source needs to be checked-out into GOPATH under the old "bitly/" import path because internal
-package imports have not been changed over yet. Dependencies are managed with [dep](https://github.com/golang/dep/).
+Dependencies are managed with [dep](https://github.com/golang/dep/).
 
 ```sh
-git clone git@github.com:ploxiln/oauth2_proxy.git $GOPATH/src/github.com/bitly/oauth2_proxy
-cd $GOPATH/src/github.com/bitly/oauth2_proxy
+git clone git@github.com:ploxiln/oauth2_proxy.git $GOPATH/src/github.com/ploxiln/oauth2_proxy
+cd $GOPATH/src/github.com/ploxiln/oauth2_proxy
 dep ensure
 go build
 ```
@@ -202,7 +201,7 @@ OpenID Connect is a spec for OAUTH 2.0 + identity that is implemented by many ma
     -email-domain example.com
 
 If you enable cookie-refresh, it should be set to the same duration as token lifetime
-(due to a limitation in `oauth2_proxy` - see [bitly/oauth2_proxy#620](https://github.com/bitly/oauth2_proxy/pull/620)).
+(due to a limitation in `oauth2_proxy` - see [ploxiln/oauth2_proxy#620](https://github.com/ploxiln/oauth2_proxy/pull/620)).
 
 ### Discord Auth Provider
 
