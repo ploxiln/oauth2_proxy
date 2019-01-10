@@ -5,7 +5,7 @@ RUN wget -O /usr/local/bin/dep \
          https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 \
  && chmod a+x /usr/local/bin/dep
 
-WORKDIR $GOPATH/src/github.com/ploxiln/oauth2_proxy/
+WORKDIR $GOPATH/src/github.com/bitly/oauth2_proxy/
 COPY . .
 RUN dep ensure -v
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /usr/local/bin/oauth2_proxy

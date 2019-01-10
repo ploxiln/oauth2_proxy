@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ploxiln/oauth2_proxy/cookie"
-	"github.com/ploxiln/oauth2_proxy/providers"
+	"github.com/bitly/oauth2_proxy/cookie"
+	"github.com/bitly/oauth2_proxy/providers"
 	"github.com/mbland/hmacauth"
 )
 
