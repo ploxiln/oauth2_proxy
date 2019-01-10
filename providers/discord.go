@@ -14,16 +14,16 @@ type DiscordProvider struct {
 }
 
 type DiscordUserInfo struct {
-    Id              string  `json:"id"`
-    Avatar          string  `json:"avatar"`
-    Username        string  `json:"username"`
-    Discriminator   string  `json:"discriminator"`
-    Verified        bool    `json:"verified"`
-    Email           string  `json:"email"`
-    Flags           int     `json:"flags"`
-    Locale          string  `json:"locale"`
-    PremiumType     int     `json:"premium_type"`
-    MfaEnabled      bool    `json:"mfa_enabled"`
+	Id            string   `json:"id"`
+	Avatar        string   `json:"avatar"`
+	Username      string   `json:"username"`
+	Discriminator string   `json:"discriminator"`
+	Verified      bool     `json:"verified"`
+	Email         string   `json:"email"`
+	Flags         int      `json:"flags"`
+	Locale        string   `json:"locale"`
+	PremiumType   int      `json:"premium_type"`
+	MfaEnabled    bool     `json:"mfa_enabled"`
 }
 
 func NewDiscordProvider(p *ProviderData) *DiscordProvider {
@@ -85,7 +85,7 @@ func getUserInfo(p *DiscordProvider, s *SessionState) (DiscordUserInfo, error) {
 // time! Instead, the user id which is guratanteed to be stable by
 // Discord is provided.
 func (p *DiscordProvider) GetUserName(s *SessionState) (string, error) {
-    r, err := getUserInfo(p, s)
+	r, err := getUserInfo(p, s)
 	if err != nil {
 		return "", err
 	}
@@ -96,7 +96,7 @@ func (p *DiscordProvider) GetUserName(s *SessionState) (string, error) {
 }
 
 func (p *DiscordProvider) GetEmailAddress(s *SessionState) (string, error) {
-    r, err := getUserInfo(p, s)
+	r, err := getUserInfo(p, s)
 	if err != nil {
 		return "", err
 	}
