@@ -48,12 +48,15 @@ docker run ... -p 4180:4180 -e OAUTH2_PROXY_CLIENT_SECRET ploxiln/oauth2_proxy o
 
 ### Build from source
 
-The source needs to be checked-out into GOPATH under the old "bitly/" import path because internal
-package imports have not been changed over yet. Dependencies are managed with [dep](https://github.com/golang/dep/).
+The source needs to be checked-out into `GOPATH` (e.g. `$HOME/go/...`).
+(Version 2.4.1 and before used the old "bitly" import path "github.com/bitly/oauth2_proxy",
+but the master branch and later releases use the new "ploxiln" import path.)
+
+Dependencies are managed with [dep](https://github.com/golang/dep/).
 
 ```sh
-git clone git@github.com:ploxiln/oauth2_proxy.git $GOPATH/src/github.com/bitly/oauth2_proxy
-cd $GOPATH/src/github.com/bitly/oauth2_proxy
+git clone git@github.com:ploxiln/oauth2_proxy.git $GOPATH/src/github.com/ploxiln/oauth2_proxy
+cd $GOPATH/src/github.com/ploxiln/oauth2_proxy
 dep ensure
 go build
 ```
