@@ -3,11 +3,12 @@ package providers
 import (
 	"errors"
 	"fmt"
-	"github.com/bitly/go-simplejson"
-	"github.com/bitly/oauth2_proxy/api"
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/bitly/go-simplejson"
+	"github.com/ploxiln/oauth2_proxy/api"
 )
 
 type AzureProvider struct {
