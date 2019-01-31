@@ -2,7 +2,7 @@ FROM golang:1.11-alpine
 
 RUN apk update && apk add git
 RUN wget -O /usr/local/bin/dep \
-         https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 \
+         https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 \
  && chmod a+x /usr/local/bin/dep
 
 WORKDIR $GOPATH/src/github.com/ploxiln/oauth2_proxy/
