@@ -3,7 +3,9 @@ package providers
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -22,8 +24,14 @@ func NewOIDCProvider(p *ProviderData) *OIDCProvider {
 	return &OIDCProvider{ProviderData: p}
 }
 
-func (p *OIDCProvider) SetIssuerURL(issuerURL string) error {
-	provider, err := oidc.NewProvider(context.Background(), issuerURL)
+func (p *OIDCProvider) SetIssuerURL(issuerURL, policy string) error {
+	ctx := context.Background()
+	if policy != "" {
+		ctx = oidc.ClientContext(ctx, &http.Client{
+			Transport: &OIDCPolicyTransport{policy},
+		})
+	}
+	provider, err := oidc.NewProvider(ctx, issuerURL)
 	if err != nil {
 		return fmt.Errorf("error looking up issuer-url=%q %s", issuerURL, err)
 	}
@@ -143,4 +151,15 @@ func (p *OIDCProvider) createSessionState(token *oauth2.Token, ctx context.Conte
 		ExpiresOn:    token.Expiry,
 		Email:        claims.Email,
 	}, nil
+}
+
+type OIDCPolicyTransport struct {
+	Policy string
+}
+
+func (t *OIDCPolicyTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if strings.HasSuffix(req.URL.Path, "/.well-known/openid-configuration") {
+		req.URL.RawQuery = "p=" + url.QueryEscape(t.Policy)
+	}
+	return http.DefaultTransport.RoundTrip(req)
 }

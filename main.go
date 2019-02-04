@@ -71,7 +71,6 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.String("request-logging-format", defaultRequestLoggingFormat, "Template for log lines")
 
 	flagSet.String("provider", "google", "OAuth provider")
-	flagSet.String("oidc-issuer-url", "", "OpenID Connect issuer URL (ie: https://accounts.google.com)")
 	flagSet.String("login-url", "", "Authentication endpoint")
 	flagSet.String("redeem-url", "", "Token redemption endpoint")
 	flagSet.String("profile-url", "", "Profile access endpoint")
@@ -79,6 +78,8 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.String("validate-url", "", "Access token validation endpoint")
 	flagSet.String("scope", "", "OAuth scope specification")
 	flagSet.String("approval-prompt", "force", "OAuth approval_prompt")
+	flagSet.String("oidc-issuer-url", "", "OpenID Connect issuer URL (ie: https://accounts.google.com)")
+	flagSet.String("oidc-policy", "", "OpenID Connect policy name (for 'p' url query parameter")
 
 	flagSet.String("signature-key", "", "GAP-Signature request signature key (algorithm:secretkey)")
 

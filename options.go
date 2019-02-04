@@ -67,7 +67,6 @@ type Options struct {
 	// These options allow for other providers besides Google, with
 	// potential overrides.
 	Provider          string `flag:"provider" cfg:"provider"`
-	OIDCIssuerURL     string `flag:"oidc-issuer-url" cfg:"oidc_issuer_url"`
 	LoginURL          string `flag:"login-url" cfg:"login_url"`
 	RedeemURL         string `flag:"redeem-url" cfg:"redeem_url"`
 	ProfileURL        string `flag:"profile-url" cfg:"profile_url"`
@@ -75,6 +74,8 @@ type Options struct {
 	ValidateURL       string `flag:"validate-url" cfg:"validate_url"`
 	Scope             string `flag:"scope" cfg:"scope"`
 	ApprovalPrompt    string `flag:"approval-prompt" cfg:"approval_prompt"`
+	OIDCIssuerURL     string `flag:"oidc-issuer-url" cfg:"oidc_issuer_url"`
+	OIDCPolicy        string `flag:"oidc-policy" cfg:"oidc_policy"`
 
 	RequestLogging       bool   `flag:"request-logging" cfg:"request_logging"`
 	RequestLoggingFormat string `flag:"request-logging-format" cfg:"request_logging_format"`
@@ -263,7 +264,7 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 		if o.OIDCIssuerURL == "" {
 			msgs = append(msgs, "missing-setting: oidc-issuer-url")
 		} else {
-			err := p.SetIssuerURL(o.OIDCIssuerURL)
+			err := p.SetIssuerURL(o.OIDCIssuerURL, o.OIDCPolicy)
 			if err != nil {
 				msgs = append(msgs, err.Error())
 			}
