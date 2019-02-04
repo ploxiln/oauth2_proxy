@@ -62,6 +62,8 @@ type Options struct {
 	SetXAuthRequest       bool     `flag:"set-xauthrequest" cfg:"set_xauthrequest"`
 	SkipAuthPreflight     bool     `flag:"skip-auth-preflight" cfg:"skip_auth_preflight"`
 
+	FlushInterval time.Duration `flag:"flush-interval" cfg:"flush_interval"`
+
 	// These options allow for other providers besides Google, with
 	// potential overrides.
 	Provider          string `flag:"provider" cfg:"provider"`
