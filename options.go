@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"crypto"
 	"crypto/tls"
 	"encoding/base64"
@@ -13,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	oidc "github.com/coreos/go-oidc"
 	"github.com/mbland/hmacauth"
 	"github.com/ploxiln/oauth2_proxy/providers"
 )
@@ -87,7 +85,6 @@ type Options struct {
 	CompiledRegex []*regexp.Regexp
 	provider      providers.Provider
 	signatureData *SignatureData
-	oidcVerifier  *oidc.IDTokenVerifier
 }
 
 type SignatureData struct {
@@ -151,22 +148,6 @@ func (o *Options) Validate() error {
 			"\n      use email-domain=* to authorize all email addresses")
 	}
 
-	if o.OIDCIssuerURL != "" {
-		// Configure discoverable provider data.
-		provider, err := oidc.NewProvider(context.Background(), o.OIDCIssuerURL)
-		if err != nil {
-			return err
-		}
-		o.oidcVerifier = provider.Verifier(&oidc.Config{
-			ClientID: o.ClientID,
-		})
-		o.LoginURL = provider.Endpoint().AuthURL
-		o.RedeemURL = provider.Endpoint().TokenURL
-		if o.Scope == "" {
-			o.Scope = "openid email profile"
-		}
-	}
-
 	o.redirectURL, msgs = parseURL(o.RedirectURL, "redirect", msgs)
 
 	for _, u := range o.Upstreams {
@@ -189,6 +170,7 @@ func (o *Options) Validate() error {
 		}
 		o.CompiledRegex = append(o.CompiledRegex, CompiledRegex)
 	}
+
 	msgs = parseProviderInfo(o, msgs)
 
 	if o.PassAccessToken || (o.CookieRefresh != time.Duration(0)) {
@@ -224,18 +206,6 @@ func (o *Options) Validate() error {
 			o.CookieExpire.String()))
 	}
 
-	if len(o.GoogleGroups) > 0 || o.GoogleAdminEmail != "" || o.GoogleServiceAccountJSON != "" {
-		if len(o.GoogleGroups) < 1 {
-			msgs = append(msgs, "missing setting: google-group")
-		}
-		if o.GoogleAdminEmail == "" {
-			msgs = append(msgs, "missing setting: google-admin-email")
-		}
-		if o.GoogleServiceAccountJSON == "" {
-			msgs = append(msgs, "missing setting: google-service-account-json")
-		}
-	}
-
 	msgs = parseSignatureKey(o, msgs)
 	msgs = validateCookieName(o, msgs)
 
@@ -268,6 +238,17 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 	case *providers.GitLabProvider:
 		p.SetGroups(o.GitLabGroups)
 	case *providers.GoogleProvider:
+		if len(o.GoogleGroups) > 0 || o.GoogleAdminEmail != "" || o.GoogleServiceAccountJSON != "" {
+			if len(o.GoogleGroups) < 1 {
+				msgs = append(msgs, "missing setting: google-group")
+			}
+			if o.GoogleAdminEmail == "" {
+				msgs = append(msgs, "missing setting: google-admin-email")
+			}
+			if o.GoogleServiceAccountJSON == "" {
+				msgs = append(msgs, "missing setting: google-service-account-json")
+			}
+		}
 		if o.GoogleServiceAccountJSON != "" {
 			file, err := os.Open(o.GoogleServiceAccountJSON)
 			if err != nil {
@@ -277,10 +258,13 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 			}
 		}
 	case *providers.OIDCProvider:
-		if o.oidcVerifier == nil {
-			msgs = append(msgs, "oidc provider requires an oidc issuer URL")
+		if o.OIDCIssuerURL == "" {
+			msgs = append(msgs, "missing-setting: oidc-issuer-url")
 		} else {
-			p.Verifier = o.oidcVerifier
+			err := p.SetIssuerURL(o.OIDCIssuerURL)
+			if err != nil {
+				msgs = append(msgs, err.Error())
+			}
 		}
 	}
 	return msgs

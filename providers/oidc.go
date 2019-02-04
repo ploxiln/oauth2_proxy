@@ -3,6 +3,7 @@ package providers
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -19,6 +20,28 @@ type OIDCProvider struct {
 func NewOIDCProvider(p *ProviderData) *OIDCProvider {
 	p.ProviderName = "OpenID Connect"
 	return &OIDCProvider{ProviderData: p}
+}
+
+func (p *OIDCProvider) SetIssuerURL(issuerURL string) error {
+	provider, err := oidc.NewProvider(context.Background(), issuerURL)
+	if err != nil {
+		return fmt.Errorf("error looking up issuer-url=%q %s", issuerURL, err)
+	}
+	p.Verifier = provider.Verifier(&oidc.Config{
+		ClientID: p.ClientID,
+	})
+	p.LoginURL, err = url.Parse(provider.Endpoint().AuthURL)
+	if err != nil {
+		return fmt.Errorf("error parsing login-url=%q %s", provider.Endpoint().AuthURL, err)
+	}
+	p.RedeemURL, err = url.Parse(provider.Endpoint().TokenURL)
+	if err != nil {
+		return fmt.Errorf("error parsing redeem-url=%q %s", provider.Endpoint().TokenURL, err)
+	}
+	if p.Scope == "" {
+		p.Scope = "openid email profile"
+	}
+	return nil
 }
 
 func (p *OIDCProvider) Redeem(redirectURL, code string) (s *SessionState, err error) {
