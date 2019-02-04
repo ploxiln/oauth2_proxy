@@ -127,15 +127,18 @@ func parseURL(to_parse string, urltype string, msgs []string) (*url.URL, []strin
 }
 
 func (o *Options) Validate() error {
+	msgs := make([]string, 0)
+
 	if o.SSLInsecureSkipVerify {
 		// TODO: Accept a certificate bundle.
-		insecureTransport := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		default_transport, ok := http.DefaultTransport.(*http.Transport)
+		if ok {
+			default_transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		} else {
+			msgs = append(msgs, "error setting insecure tls config: DefaultTransport is unexpected type")
 		}
-		http.DefaultTransport = insecureTransport
 	}
 
-	msgs := make([]string, 0)
 	if o.CookieSecret == "" {
 		msgs = append(msgs, "missing setting: cookie-secret")
 	}
