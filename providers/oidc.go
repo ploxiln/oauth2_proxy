@@ -44,6 +44,13 @@ func (p *OIDCProvider) SetIssuerURL(issuerURL string) error {
 	return nil
 }
 
+func (p *OIDCProvider) SetVerifier(issuerURL string, jwksURL string) {
+	keySet := oidc.NewRemoteKeySet(context.Background(), jwksURL)
+	p.Verifier = oidc.NewVerifier(issuerURL, keySet, &oidc.Config{
+		ClientID: p.ClientID,
+	})
+}
+
 func (p *OIDCProvider) Redeem(redirectURL, code string) (s *SessionState, err error) {
 	ctx := context.Background()
 	c := oauth2.Config{
