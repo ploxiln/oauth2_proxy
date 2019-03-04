@@ -68,6 +68,8 @@ type Options struct {
 	// potential overrides.
 	Provider          string `flag:"provider" cfg:"provider"`
 	OIDCIssuerURL     string `flag:"oidc-issuer-url" cfg:"oidc_issuer_url"`
+	OIDCJwksURL       string `flag:"oidc-jwks-url" cfg:"oidc_jwks_url"`
+	SkipOIDCDiscovery bool   `flag:"skip-oidc-discovery" cfg:"skip_oidc_discovery"`
 	LoginURL          string `flag:"login-url" cfg:"login_url"`
 	RedeemURL         string `flag:"redeem-url" cfg:"redeem_url"`
 	ProfileURL        string `flag:"profile-url" cfg:"profile_url"`
@@ -265,10 +267,26 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 	case *providers.OIDCProvider:
 		if o.OIDCIssuerURL == "" {
 			msgs = append(msgs, "missing-setting: oidc-issuer-url")
+		}
+		if o.SkipOIDCDiscovery {
+			if o.LoginURL == "" {
+				msgs = append(msgs, "missing setting: login-url")
+			}
+			if o.RedeemURL == "" {
+				msgs = append(msgs, "missing setting: redeem-url")
+			}
+			if o.OIDCJwksURL == "" {
+				msgs = append(msgs, "missing setting: oidc-jwks-url")
+			}
+			if o.OIDCIssuerURL != "" && o.OIDCJwksURL != "" {
+				p.SetVerifier(o.OIDCIssuerURL, o.OIDCJwksURL)
+			}
 		} else {
-			err := p.SetIssuerURL(o.OIDCIssuerURL)
-			if err != nil {
-				msgs = append(msgs, err.Error())
+			if o.OIDCIssuerURL != "" {
+				err := p.SetIssuerURL(o.OIDCIssuerURL)
+				if err != nil {
+					msgs = append(msgs, err.Error())
+				}
 			}
 		}
 	}

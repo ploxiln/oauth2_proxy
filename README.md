@@ -182,11 +182,13 @@ For LinkedIn, the registration steps are:
 3. Fill in the remaining required fields and Save.
 4. Take note of the **Consumer Key / API Key** and **Consumer Secret / Secret Key**
 
+
 ### Microsoft Azure AD Provider
 
 For adding an application to the Microsoft Azure AD follow [these steps to add an application](https://azure.microsoft.com/en-us/documentation/articles/active-directory-integrating-applications/).
 
 Take note of your `TenantId` if applicable for your situation. The `TenantId` can be used to override the default `common` authorization server with a tenant specific server.
+
 
 ### OpenID Connect Provider
 
@@ -206,6 +208,28 @@ OpenID Connect is a spec for OAUTH 2.0 + identity that is implemented by many ma
 
 If you enable cookie-refresh, it should be set to the same duration as token lifetime
 (due to a limitation in `oauth2_proxy` - see [bitly/oauth2_proxy#620](https://github.com/bitly/oauth2_proxy/pull/620)).
+
+#### Skip OIDC discovery
+
+Some providers do not support OIDC discovery via their issuer URL, so oauth2_proxy cannot
+simply grab the authorization, token and jwks URI endpoints from the provider's metadata.
+
+In this case, you can set the `-skip-oidc-discovery` option, and supply those required endpoints manually:
+
+```
+    -provider oidc
+    -client-id oauth2_proxy
+    -client-secret proxy
+    -redirect-url http://127.0.0.1:4180/oauth2/callback
+    -oidc-issuer-url http://127.0.0.1:5556
+    -skip-oidc-discovery
+    -login-url http://127.0.0.1:5556/authorize
+    -redeem-url http://127.0.0.1:5556/token
+    -oidc-jwks-url http://127.0.0.1:5556/keys
+    -cookie-secure=false
+    -email-domain example.com
+```
+
 
 ### Discord Auth Provider
 
