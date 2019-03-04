@@ -42,12 +42,12 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.Duration("flush-interval", 0, "period between response flushing when streaming responses (disabled by default)")
 
 	flagSet.Var(&emailDomains, "email-domain", "authenticate emails with the specified domain (may be given multiple times). Use * to authenticate any email")
-	flagSet.Var(&whitelistDomains, "whitelist-domain", "allowed domains for redirection after authentication. Prefix domain with a . to allow subdomains (eg .example.com)")
+	flagSet.Var(&whitelistDomains, "whitelist-domain", "allowed domain for redirection after authentication, leading '.' allows subdomains (may be given multiple times)")
 	flagSet.String("azure-tenant", "common", "go to a tenant-specific or common (tenant-independent) endpoint.")
 	flagSet.String("github-org", "", "restrict logins to members of this organisation")
-	flagSet.String("github-team", "", "restrict logins to members of this team")
+	flagSet.String("github-team", "", "restrict logins to members of this team (slug) (may be given multiple times)")
 	flagSet.Var(&gitlabGroups, "gitlab-group", "restrict logins to members of this group (full path) (may be given multiple times)")
-	flagSet.Var(&googleGroups, "google-group", "restrict logins to members of this google group (may be given multiple times).")
+	flagSet.Var(&googleGroups, "google-group", "restrict logins to members of this google group (may be given multiple times)")
 	flagSet.String("google-admin-email", "", "the google admin to impersonate for api calls")
 	flagSet.String("google-service-account-json", "", "the path to the service account json credentials")
 	flagSet.String("client-id", "", "the OAuth Client ID: ie: \"123456.apps.googleusercontent.com\"")
@@ -68,7 +68,7 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.Bool("cookie-httponly", true, "set HttpOnly cookie flag")
 
 	flagSet.Bool("request-logging", true, "Log requests to stdout")
-	flagSet.String("request-logging-format", defaultRequestLoggingFormat, "Template for log lines")
+	flagSet.String("request-logging-format", defaultRequestLoggingFormat, "Template for request log lines")
 
 	flagSet.String("provider", "google", "OAuth provider")
 	flagSet.String("oidc-issuer-url", "", "OpenID Connect issuer URL (e.g. https://accounts.google.com)")

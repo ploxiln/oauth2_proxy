@@ -241,6 +241,7 @@ In this case, you can set the `-skip-oidc-discovery` option, and supply those re
 
 To authorize by email domain use `--email-domain=yourcompany.com`. To authorize individual email addresses use `--authenticated-emails-file=/path/to/file` with one email per line. To authorize all email addresses use `--email-domain=*`.
 
+
 ## Configuration
 
 `oauth2_proxy` can be configured via [config file](#config-file), [command line options](#command-line-options) or [environment variables](#environment-variables).
@@ -250,6 +251,7 @@ To generate a strong cookie secret use `python -c 'import os,base64; print base6
 ### Config File
 
 An example [oauth2_proxy.cfg](contrib/oauth2_proxy.cfg.example) config file is in the contrib directory. It can be used by specifying `-config=/etc/oauth2_proxy.cfg`
+
 
 ### Command Line Options
 
@@ -262,7 +264,7 @@ Usage of oauth2_proxy:
   -client-id string: the OAuth Client ID: ie: "123456.apps.googleusercontent.com"
   -client-secret string: the OAuth Client Secret
   -config string: path to config file
-  -cookie-domain string: an optional cookie domain to force cookies to (ie: .yourcompany.com)
+  -cookie-domain string: an optional cookie domain to force cookies to (ie: .yourcompany.com)*
   -cookie-expire duration: expire timeframe for cookie (default 168h0m0s)
   -cookie-httponly: set HttpOnly cookie flag (default true)
   -cookie-name string: the name of the cookie that the oauth_proxy creates (default "_oauth2_proxy")
@@ -272,17 +274,20 @@ Usage of oauth2_proxy:
   -custom-templates-dir string: path to custom html templates
   -display-htpasswd-form: display username / password login form if an htpasswd file is provided (default true)
   -email-domain value: authenticate emails with the specified domain (may be given multiple times). Use * to authenticate any email
+  -flush-interval duration: period between response flushing when streaming responses (disabled by default)
   -footer string: custom footer string. Use "-" to disable default footer.
   -github-org string: restrict logins to members of this organisation
-  -github-team string: restrict logins to members of any of these teams (slug), separated by a comma
-  -gitlab-group string: restrict logins to members of this group (full path) (may be given multiple times)
+  -github-team string: restrict logins to members of this team (slug) (may be given multiple times)
+  -gitlab-group value: restrict logins to members of this group (full path) (may be given multiple times)
   -google-admin-email string: the google admin to impersonate for api calls
-  -google-group value: restrict logins to members of this google group (may be given multiple times).
+  -google-group value: restrict logins to members of this google group (may be given multiple times)
   -google-service-account-json string: the path to the service account json credentials
-  -htpasswd-file string: additionally authenticate against a htpasswd file. Entries must be created with "htpasswd -s" for SHA encryption
+  -htpasswd-file string: additionally authenticate against a htpasswd file. Entries must be created with "htpasswd -s" for SHA encryption or "htpasswd -B" for bcrypt encryption
   -http-address string: [http://]<addr>:<port> or unix://<path> to listen on for HTTP clients (default "127.0.0.1:4180")
   -https-address string: <addr>:<port> to listen on for HTTPS clients (default ":443")
   -login-url string: Authentication endpoint
+  -oidc-issuer-url string: OpenID Connect issuer URL (e.g. https://accounts.google.com)
+  -oidc-jwks-url string: OpenID Connect JWKS URL for token verification (e.g. https://www.googleapis.com/oauth2/v3/certs)
   -pass-access-token: pass OAuth access_token to upstream via X-Forwarded-Access-Token header
   -pass-basic-auth: pass HTTP Basic Auth, X-Forwarded-User and X-Forwarded-Email information to upstream (default true)
   -pass-host-header: pass the request Host Header to upstream (default true)
@@ -293,13 +298,14 @@ Usage of oauth2_proxy:
   -redeem-url string: Token redemption endpoint
   -redirect-url string: the OAuth Redirect URL. ie: "https://internalapp.yourcompany.com/oauth2/callback"
   -request-logging: Log requests to stdout (default true)
-  -request-logging-format: Template for request log lines (see "Logging Format" paragraph below)
+  -request-logging-format string: Template for request log lines (see "Logging Format" section)
   -resource string: The resource that is protected (Azure AD only)
   -scope string: OAuth scope specification
   -set-xauthrequest: set X-Auth-Request-User and X-Auth-Request-Email response headers (useful in Nginx auth_request mode)
   -signature-key string: GAP-Signature request signature key (algorithm:secretkey)
   -skip-auth-preflight: will skip authentication for OPTIONS requests
   -skip-auth-regex value: bypass authentication for requests path's that match (may be given multiple times)
+  -skip-oidc-discovery: Skip OIDC discovery (login-url, redeem-url and oidc-jwks-url must be configured)
   -skip-provider-button: will skip sign-in-page to directly reach the next step: oauth/start
   -ssl-insecure-skip-verify: skip validation of certificates presented when using HTTPS
   -tls-cert string: path to certificate file
@@ -307,12 +313,9 @@ Usage of oauth2_proxy:
   -upstream value: the http url(s) of the upstream endpoint or file:// paths for static files. Routing is based on the path
   -validate-url string: Access token validation endpoint
   -version: print version string
-  -whitelist-domain: allowed domains for redirection after authentication. Prefix domain with a . to allow subdomains (eg .example.com)
+  -whitelist-domain value: allowed domain for redirection after authentication, leading '.' allows subdomains (may be given multiple times)
 ```
 
-Note, when using the `whitelist-domain` option, any domain prefixed with a `.` will allow any subdomain of the specified domain as a valid redirect URL.
-
-See below for provider specific options
 
 ### Upstreams Configuration
 
@@ -321,6 +324,7 @@ See below for provider specific options
 Static file paths are configured as a file:// URL. `file:///var/www/static/` will serve the files from that directory at `http://[oauth2_proxy url]/var/www/static/`, which may not be what you want. You can provide the path to where the files should be available by adding a fragment to the configured URL. The value of the fragment will then be used to specify which path the files are available at. `file:///var/www/static/#/static/` will ie. make `/var/www/static/` available at `http://[oauth2_proxy url]/static/`.
 
 Multiple upstreams can either be configured by supplying a comma separated list to the `-upstream` parameter, supplying the parameter multiple times or provinding a list in the [config file](#config-file). When multiple upstreams are used routing to them will be based on the path they are set up with.
+
 
 ### Environment variables
 
