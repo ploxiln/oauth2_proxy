@@ -67,8 +67,8 @@ func (p *GitHubProvider) hasOrg(accessToken string) (bool, error) {
 
 	for pn := 1; pn <= 10; pn++ {
 		params := url.Values{
-			"limit": {"100"},
-			"page":  {strconv.Itoa(pn)},
+			"per_page": {"100"},
+			"page":     {strconv.Itoa(pn)},
 		}
 		endpoint := &url.URL{
 			Scheme:   p.ValidateURL.Scheme,
@@ -130,7 +130,7 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 	}
 
 	params := url.Values{
-		"limit": {"100"},
+		"per_page": {"100"},
 	}
 	endpoint := &url.URL{
 		Scheme:   p.ValidateURL.Scheme,

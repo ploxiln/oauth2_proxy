@@ -31,7 +31,7 @@ func testGitHubBackend(payload []string) *httptest.Server {
 	pathToQueryMap := map[string][]string{
 		"/user":        []string{""},
 		"/user/emails": []string{""},
-		"/user/orgs":   []string{"limit=100&page=1", "limit=100&page=2", "limit=100&page=3"},
+		"/user/orgs":   []string{"page=1&per_page=100", "page=2&per_page=100", "page=3&per_page=100"},
 	}
 
 	return httptest.NewServer(http.HandlerFunc(
@@ -106,7 +106,7 @@ func TestGitHubProviderGetEmailAddress(t *testing.T) {
 
 	session := &SessionState{AccessToken: "imaginary_access_token"}
 	email, err := p.GetEmailAddress(session)
-	assert.Equal(t, nil, err)
+	assert.Nil(t, err)
 	assert.Equal(t, "michael.bland@gsa.gov", email)
 }
 
@@ -124,7 +124,7 @@ func TestGitHubProviderGetEmailAddressWithOrg(t *testing.T) {
 
 	session := &SessionState{AccessToken: "imaginary_access_token"}
 	email, err := p.GetEmailAddress(session)
-	assert.Equal(t, nil, err)
+	assert.Nil(t, err)
 	assert.Equal(t, "michael.bland@gsa.gov", email)
 }
 
@@ -142,7 +142,7 @@ func TestGitHubProviderGetEmailAddressFailedRequest(t *testing.T) {
 	// JSON to fail.
 	session := &SessionState{AccessToken: "unexpected_access_token"}
 	email, err := p.GetEmailAddress(session)
-	assert.NotEqual(t, nil, err)
+	assert.NotNil(t, err)
 	assert.Equal(t, "", email)
 }
 
@@ -155,7 +155,7 @@ func TestGitHubProviderGetEmailAddressEmailNotPresentInPayload(t *testing.T) {
 
 	session := &SessionState{AccessToken: "imaginary_access_token"}
 	email, err := p.GetEmailAddress(session)
-	assert.NotEqual(t, nil, err)
+	assert.NotNil(t, err)
 	assert.Equal(t, "", email)
 }
 
