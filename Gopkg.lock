@@ -95,10 +95,21 @@
 [[projects]]
   digest = "1:25f2747b063c0a656195ef85413cef8c9f2bbe128deab7d39563a6ca1e536070"
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
+  packages = [
+    "assert",
+    "require",
+  ]
   pruneopts = "UT"
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f7a72935dedbd57d651ea4870078bfb61a5c1728c5ed0b3058781e558df0f8a3"
+  name = "github.com/yhat/wsutil"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1d66fa95c997864ba4d8479f56609620fe542928"
 
 [[projects]]
   branch = "master"
@@ -121,6 +132,7 @@
   packages = [
     "context",
     "context/ctxhttp",
+    "websocket",
   ]
   pruneopts = "UT"
   revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
@@ -201,7 +213,10 @@
     "github.com/mbland/hmacauth",
     "github.com/mreiferson/go-options",
     "github.com/stretchr/testify/assert",
+    "github.com/stretchr/testify/require",
+    "github.com/yhat/wsutil",
     "golang.org/x/crypto/bcrypt",
+    "golang.org/x/net/websocket",
     "golang.org/x/oauth2",
     "golang.org/x/oauth2/google",
     "google.golang.org/api/admin/directory/v1",

@@ -18,14 +18,15 @@ import (
 
 // Configuration Options that can be set by Command Line Flag, or Config File
 type Options struct {
-	ProxyPrefix  string `flag:"proxy-prefix" cfg:"proxy-prefix"`
-	HttpAddress  string `flag:"http-address" cfg:"http_address"`
-	HttpsAddress string `flag:"https-address" cfg:"https_address"`
-	RedirectURL  string `flag:"redirect-url" cfg:"redirect_url"`
-	ClientID     string `flag:"client-id" cfg:"client_id" env:"OAUTH2_PROXY_CLIENT_ID"`
-	ClientSecret string `flag:"client-secret" cfg:"client_secret" env:"OAUTH2_PROXY_CLIENT_SECRET"`
-	TLSCertFile  string `flag:"tls-cert" cfg:"tls_cert_file"`
-	TLSKeyFile   string `flag:"tls-key" cfg:"tls_key_file"`
+	ProxyPrefix     string `flag:"proxy-prefix" cfg:"proxy-prefix"`
+	ProxyWebSockets bool   `flag:"proxy-websockets" cfg:"proxy_websockets"`
+	HttpAddress     string `flag:"http-address" cfg:"http_address"`
+	HttpsAddress    string `flag:"https-address" cfg:"https_address"`
+	RedirectURL     string `flag:"redirect-url" cfg:"redirect_url"`
+	ClientID        string `flag:"client-id" cfg:"client_id" env:"OAUTH2_PROXY_CLIENT_ID"`
+	ClientSecret    string `flag:"client-secret" cfg:"client_secret" env:"OAUTH2_PROXY_CLIENT_SECRET"`
+	TLSCertFile     string `flag:"tls-cert" cfg:"tls_cert_file"`
+	TLSKeyFile      string `flag:"tls-key" cfg:"tls_key_file"`
 
 	AuthenticatedEmailsFile  string   `flag:"authenticated-emails-file" cfg:"authenticated_emails_file"`
 	AzureTenant              string   `flag:"azure-tenant" cfg:"azure_tenant"`
@@ -99,6 +100,7 @@ type SignatureData struct {
 func NewOptions() *Options {
 	return &Options{
 		ProxyPrefix:          "/oauth2",
+		ProxyWebSockets:      true,
 		HttpAddress:          "127.0.0.1:4180",
 		HttpsAddress:         ":443",
 		DisplayHtpasswdForm:  true,
