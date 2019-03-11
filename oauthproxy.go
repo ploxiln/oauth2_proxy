@@ -17,6 +17,7 @@ import (
 	"github.com/mbland/hmacauth"
 	"github.com/ploxiln/oauth2_proxy/cookie"
 	"github.com/ploxiln/oauth2_proxy/providers"
+	"github.com/yhat/wsutil"
 )
 
 const SignatureHeader = "GAP-Signature"
@@ -76,9 +77,10 @@ type OAuthProxy struct {
 }
 
 type UpstreamProxy struct {
-	upstream string
-	handler  http.Handler
-	auth     hmacauth.HmacAuth
+	upstream  string
+	handler   http.Handler
+	wsHandler http.Handler
+	auth      hmacauth.HmacAuth
 }
 
 func (u *UpstreamProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +89,12 @@ func (u *UpstreamProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.Header.Set("GAP-Auth", w.Header().Get("GAP-Auth"))
 		u.auth.SignRequest(r)
 	}
-	u.handler.ServeHTTP(w, r)
+	if u.wsHandler != nil && r.Header.Get("Connection") == "Upgrade" && r.Header.Get("Upgrade") == "websocket" {
+		u.wsHandler.ServeHTTP(w, r)
+	} else {
+		u.handler.ServeHTTP(w, r)
+	}
+
 }
 
 func setProxyUpstreamHostHeader(proxy *httputil.ReverseProxy, target *url.URL) {
@@ -113,6 +120,27 @@ func NewFileServer(path string, filesystemPath string) (proxy http.Handler) {
 	return http.StripPrefix(path, http.FileServer(http.Dir(filesystemPath)))
 }
 
+func NewWebSocketOrRestReverseProxy(u *url.URL, opts *Options, auth hmacauth.HmacAuth) (restProxy http.Handler) {
+	proxy := httputil.NewSingleHostReverseProxy(u)
+	proxy.FlushInterval = opts.FlushInterval
+
+	u.Path = ""
+	if !opts.PassHostHeader {
+		setProxyUpstreamHostHeader(proxy, u)
+	} else {
+		setProxyDirector(proxy)
+	}
+
+	// this should give us a wss:// scheme if the url is https:// based.
+	var wsProxy *wsutil.ReverseProxy
+	if opts.ProxyWebSockets {
+		wsScheme := "ws" + strings.TrimPrefix(u.Scheme, "http")
+		wsURL := &url.URL{Scheme: wsScheme, Host: u.Host}
+		wsProxy = wsutil.NewSingleHostReverseProxy(wsURL)
+	}
+	return &UpstreamProxy{u.Host, proxy, wsProxy, auth}
+}
+
 func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 	serveMux := http.NewServeMux()
 	var auth hmacauth.HmacAuth
@@ -124,24 +152,16 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		path := u.Path
 		switch u.Scheme {
 		case "http", "https":
-			u.Path = ""
 			log.Printf("mapping path %q => upstream %q", path, u)
-			proxy := httputil.NewSingleHostReverseProxy(u)
-			proxy.FlushInterval = opts.FlushInterval
-			if !opts.PassHostHeader {
-				setProxyUpstreamHostHeader(proxy, u)
-			} else {
-				setProxyDirector(proxy)
-			}
-			serveMux.Handle(path,
-				&UpstreamProxy{u.Host, proxy, auth})
+			proxy := NewWebSocketOrRestReverseProxy(u, opts, auth)
+			serveMux.Handle(path, proxy)
 		case "file":
 			if u.Fragment != "" {
 				path = u.Fragment
 			}
 			log.Printf("mapping path %q => file system %q", path, u.Path)
 			proxy := NewFileServer(path, u.Path)
-			serveMux.Handle(path, &UpstreamProxy{path, proxy, nil})
+			serveMux.Handle(path, &UpstreamProxy{path, proxy, nil, nil})
 		default:
 			panic(fmt.Sprintf("unknown upstream protocol %s", u.Scheme))
 		}
