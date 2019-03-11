@@ -95,10 +95,7 @@
 [[projects]]
   digest = "1:25f2747b063c0a656195ef85413cef8c9f2bbe128deab7d39563a6ca1e536070"
   name = "github.com/stretchr/testify"
-  packages = [
-    "assert",
-    "require",
-  ]
+  packages = ["assert"]
   pruneopts = "UT"
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
@@ -213,7 +210,6 @@
     "github.com/mbland/hmacauth",
     "github.com/mreiferson/go-options",
     "github.com/stretchr/testify/assert",
-    "github.com/stretchr/testify/require",
     "github.com/yhat/wsutil",
     "golang.org/x/crypto/bcrypt",
     "golang.org/x/net/websocket",
