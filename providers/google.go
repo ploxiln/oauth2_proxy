@@ -16,7 +16,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/admin/directory/v1"
+	admin "google.golang.org/api/admin/directory/v1"
 )
 
 type GoogleProvider struct {
@@ -179,33 +179,21 @@ func getAdminService(adminEmail string, credentialsReader io.Reader) *admin.Serv
 }
 
 func userInGroup(service *admin.Service, groups []string, email string) bool {
-	pageToken := ""
-	// limit to 10 pages/requests
-	for i := 0; i < 10; i++ {
-		req := service.Groups.List().UserKey(email)
-		if pageToken != "" {
-			req.PageToken(pageToken)
-		}
-		resp, err := req.Do()
+	for _, allowedgroup := range groups {
+		resp, err := service.Members.HasMember(allowedgroup, email).Do()
+
 		if err != nil {
-			log.Printf("Error calling service.Groups.List().userKey(%s)", email)
+			log.Printf("Error calling service.Members.HasMember(%s, %s): %s", allowedgroup, email, err)
 			return false
 		}
-		for _, group := range resp.Groups {
-			for _, allowedgroup := range groups {
-				if group.Email == allowedgroup {
-					log.Printf("%s is a member of %s, authorized", email, allowedgroup)
-					return true
-				}
-			}
+
+		if resp.IsMember {
+			log.Printf("%s is a member of %s, authorized", email, allowedgroup)
+			return true
 		}
-		if resp.NextPageToken == "" {
-			log.Printf("%s not found in any allowed groups", email)
-			return false
-		}
-		pageToken = resp.NextPageToken
 	}
-	log.Printf("WARNING: %s has more than 10 pages of groups", email)
+
+	log.Printf("%s not found in any allowed groups", email)
 	return false
 }
 
