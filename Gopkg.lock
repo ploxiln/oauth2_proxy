@@ -124,7 +124,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f8b491a7c25030a895a0e579742d07136e6958e77ef2d46e769db8eec4e58fcd"
+  digest = "1:c0943fb749094d1e76272362eb1b18bedafc48f8f47dfdfd0b6c58275437da87"
   name = "golang.org/x/net"
   packages = [
     "context",
