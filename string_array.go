@@ -11,6 +11,10 @@ func (a *StringArray) Set(s string) error {
 	return nil
 }
 
+func (a *StringArray) Get() interface{} {
+	return []string(*a)
+}
+
 func (a *StringArray) String() string {
 	return strings.Join(*a, ",")
 }
