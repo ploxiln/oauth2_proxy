@@ -1,4 +1,4 @@
-FROM golang:1.11-alpine
+FROM golang:1.12-alpine
 
 RUN apk update && apk add git
 RUN wget -O /usr/local/bin/dep \
