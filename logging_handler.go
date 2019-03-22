@@ -4,6 +4,8 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -29,6 +31,14 @@ type responseLogger struct {
 
 func (l *responseLogger) Header() http.Header {
 	return l.w.Header()
+}
+
+// Support Websocket
+func (l *responseLogger) Hijack() (rwc net.Conn, buf *bufio.ReadWriter, err error) {
+	if hj, ok := l.w.(http.Hijacker); ok {
+		return hj.Hijack()
+	}
+	return nil, nil, errors.New("http.Hijacker is not available on writer")
 }
 
 func (l *responseLogger) ExtractGAPMetadata() {
