@@ -62,7 +62,8 @@ func mainFlagSet() *flag.FlagSet {
 
 	flagSet.String("cookie-name", "_oauth2_proxy", "the name of the cookie that the oauth_proxy creates")
 	flagSet.String("cookie-secret", "", "the seed string for secure cookies (optionally base64 encoded)")
-	flagSet.String("cookie-domain", "", "an optional cookie domain to force cookies to (ie: .yourcompany.com)*")
+	flagSet.String("cookie-domain", "", "an optional cookie domain (e.g. '.yourcompany.com')")
+	flagSet.String("cookie-path", "/", "url path under which cookie applies (e.g. '/poc/')")
 	flagSet.Duration("cookie-expire", time.Duration(168)*time.Hour, "expire timeframe for cookie")
 	flagSet.Duration("cookie-refresh", time.Duration(0), "refresh the cookie after this duration; 0 to disable")
 	flagSet.Bool("cookie-secure", true, "set secure (HTTPS) cookie flag")
