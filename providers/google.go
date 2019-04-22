@@ -179,21 +179,53 @@ func getAdminService(adminEmail string, credentialsReader io.Reader) *admin.Serv
 }
 
 func userInGroup(service *admin.Service, groups []string, email string) bool {
+	// Check the user is part of the group list or one of their subgroups
+	// Note: the following loop won't work for users not having the same domain than the group
+	// There is a domain scope issue on Google side, community is still waiting for an answer from them. See the partial fallback after this loop
+	// https://issuetracker.google.com/issues/109861216
 	for _, allowedgroup := range groups {
 		resp, err := service.Members.HasMember(allowedgroup, email).Do()
 
 		if err != nil {
-			log.Printf("Error calling service.Members.HasMember(%s, %s): %s", allowedgroup, email, err)
-			return false
-		}
-
-		if resp.IsMember {
+			// We do not fail on error since it can come from the domain scope issue mentioned above
+			// Like that we are able to try the fallback implementation
+		} else if resp.IsMember {
 			log.Printf("%s is a member of %s, authorized", email, allowedgroup)
 			return true
 		}
 	}
 
-	log.Printf("%s not found in any allowed groups", email)
+	// Partial fallback: browse user groups to see if requested groups match, this fallback is for users not having the same domain than the group
+	// Example: "user@gmail.com" cannot be retrieved in "group@mydomain.com" through "hasMember()" method due to mentionned Google issue
+	// Since listing nested groups could results in undertemined number of requests (minimum X requests for X layers)
+	// The idea is to put your members not having groups domain in a dedicated group, and add this group to the parameter -google-group
+	// Note: limit to 10 pages/requests
+	pageToken := ""
+	for i := 0; i < 10; i++ {
+		req := service.Groups.List().UserKey(email)
+		if pageToken != "" {
+			req.PageToken(pageToken)
+		}
+		resp, err := req.Do()
+		if err != nil {
+			log.Printf("Error calling service.Groups.List().userKey(%s)", email)
+			return false
+		}
+		for _, group := range resp.Groups {
+			for _, allowedgroup := range groups {
+				if group.Email == allowedgroup {
+					log.Printf("%s is a member of %s, authorized", email, allowedgroup)
+					return true
+				}
+			}
+		}
+		if resp.NextPageToken == "" {
+			log.Printf("%s not found in any allowed groups", email)
+			return false
+		}
+		pageToken = resp.NextPageToken
+	}
+	log.Printf("WARNING: %s has more than 10 pages of groups", email)
 	return false
 }
 
