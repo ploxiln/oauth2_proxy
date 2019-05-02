@@ -40,6 +40,7 @@ type OAuthProxy struct {
 	CookieName     string
 	CSRFCookieName string
 	CookieDomain   string
+	CookiePath     string
 	CookieSecure   bool
 	CookieHttpOnly bool
 	CookieExpire   time.Duration
@@ -181,7 +182,8 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		refresh = fmt.Sprintf("after %s", opts.CookieRefresh)
 	}
 
-	log.Printf("Cookie settings: name:%s secure(https):%v httponly:%v expiry:%s domain:%s refresh:%s", opts.CookieName, opts.CookieSecure, opts.CookieHttpOnly, opts.CookieExpire, opts.CookieDomain, refresh)
+	log.Printf("Cookie settings: name:%s secure(https):%v httponly:%v expiry:%s domain:%s path:%s refresh:%s",
+		opts.CookieName, opts.CookieSecure, opts.CookieHttpOnly, opts.CookieExpire, opts.CookieDomain, opts.CookiePath, refresh)
 
 	var cipher *cookie.Cipher
 	if opts.PassAccessToken || (opts.CookieRefresh != time.Duration(0)) {
@@ -197,6 +199,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		CSRFCookieName: fmt.Sprintf("%v_%v", opts.CookieName, "csrf"),
 		CookieSeed:     opts.CookieSecret,
 		CookieDomain:   opts.CookieDomain,
+		CookiePath:     opts.CookiePath,
 		CookieSecure:   opts.CookieSecure,
 		CookieHttpOnly: opts.CookieHttpOnly,
 		CookieExpire:   opts.CookieExpire,
@@ -306,7 +309,7 @@ func (p *OAuthProxy) makeCookie(req *http.Request, name string, value string, ex
 	return &http.Cookie{
 		Name:     name,
 		Value:    value,
-		Path:     "/",
+		Path:     p.CookiePath,
 		Domain:   p.CookieDomain,
 		HttpOnly: p.CookieHttpOnly,
 		Secure:   p.CookieSecure,

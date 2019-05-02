@@ -264,10 +264,11 @@ Usage of oauth2_proxy:
   -client-id string: the OAuth Client ID: ie: "123456.apps.googleusercontent.com"
   -client-secret string: the OAuth Client Secret
   -config string: path to config file
-  -cookie-domain string: an optional cookie domain to force cookies to (ie: .yourcompany.com)*
+  -cookie-domain string: an optional cookie domain (e.g. '.yourcompany.com')
   -cookie-expire duration: expire timeframe for cookie (default 168h0m0s)
   -cookie-httponly: set HttpOnly cookie flag (default true)
   -cookie-name string: the name of the cookie that the oauth_proxy creates (default "_oauth2_proxy")
+  -cookie-path string: url path under which cookie applies (e.g. '/poc/') (default "/")
   -cookie-refresh duration: refresh the cookie after this duration; 0 to disable
   -cookie-secret string: the seed string for secure cookies (optionally base64 encoded)
   -cookie-secure: set secure (HTTPS) cookie flag (default true)
