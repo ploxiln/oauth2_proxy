@@ -38,16 +38,18 @@ func NewGitLabProvider(p *ProviderData) *GitLabProvider {
 			Path:   "/api/v4/user",
 		}
 	}
-	if p.Scope == "" {
-		p.Scope = "read_user"
-	}
 	return &GitLabProvider{ProviderData: p}
 }
 
 func (p *GitLabProvider) SetGroups(groups []string) {
 	p.Groups = groups
-	if len(groups) > 0 {
-		p.Scope = "api"
+
+	if p.Scope == "" {
+		if len(groups) > 0 {
+			p.Scope = "api"
+		} else {
+			p.Scope = "read_user"
+		}
 	}
 }
 

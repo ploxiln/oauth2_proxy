@@ -24,6 +24,7 @@ func testGitLabProvider(hostname string) *GitLabProvider {
 		updateURL(p.Data().ProfileURL, hostname)
 		updateURL(p.Data().ValidateURL, hostname)
 	}
+	p.SetGroups([]string{})
 	return p
 }
 
