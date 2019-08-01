@@ -400,12 +400,10 @@ func (p *OAuthProxy) SignInPage(rw http.ResponseWriter, req *http.Request, code 
 	p.ClearSessionCookie(rw, req)
 	rw.WriteHeader(code)
 
-	redirect_url := req.URL.RequestURI()
-	if req.Header.Get("X-Auth-Request-Redirect") != "" {
-		redirect_url = req.Header.Get("X-Auth-Request-Redirect")
-	}
-	if redirect_url == p.SignInPath {
-		redirect_url = "/"
+	redirect_url, err := p.GetRedirect(req)
+	if err != nil {
+		p.ErrorPage(rw, 400, "Bad Request", err.Error())
+		return
 	}
 
 	t := struct {
@@ -450,33 +448,41 @@ func (p *OAuthProxy) GetRedirect(req *http.Request) (redirect string, err error)
 	if err != nil {
 		return
 	}
-
 	redirect = req.Form.Get("rd")
+	if redirect == "" {
+		redirect = req.Header.Get("X-Auth-Request-Redirect")
+	}
+	if redirect == "" {
+		redirect = req.URL.RequestURI()
+	}
 	if !p.IsValidRedirect(redirect) {
 		redirect = "/"
 	}
-
 	return
 }
 
 func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
-	switch {
-	case strings.HasPrefix(redirect, "/") && !strings.HasPrefix(redirect, "//"):
+	url, err := url.Parse(redirect)
+	if err != nil {
+		return false
+	}
+	if url.Path == p.SignInPath || url.Path == p.OAuthStartPath {
+		return false
+	}
+	if strings.HasPrefix(redirect, "/") && !strings.HasPrefix(redirect, "//") {
 		return true
-	case strings.HasPrefix(redirect, "http://") || strings.HasPrefix(redirect, "https://"):
-		url, err := url.Parse(redirect)
-		if err != nil {
-			return false
-		}
+	}
+	if strings.HasPrefix(redirect, "http://") || strings.HasPrefix(redirect, "https://") {
 		for _, domain := range p.whitelistDomains {
-			if (url.Host == domain) || (strings.HasPrefix(domain, ".") && strings.HasSuffix(url.Host, domain)) {
+			if url.Host == domain {
+				return true
+			}
+			if strings.HasPrefix(domain, ".") && strings.HasSuffix(url.Host, domain) {
 				return true
 			}
 		}
-		return false
-	default:
-		return false
 	}
+	return false
 }
 
 func (p *OAuthProxy) IsWhitelistedRequest(req *http.Request) (ok bool) {
@@ -526,14 +532,13 @@ func (p *OAuthProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *OAuthProxy) SignIn(rw http.ResponseWriter, req *http.Request) {
-	redirect, err := p.GetRedirect(req)
-	if err != nil {
-		p.ErrorPage(rw, 500, "Internal Error", err.Error())
-		return
-	}
-
 	user, ok := p.ManualSignIn(rw, req)
 	if ok {
+		redirect, err := p.GetRedirect(req)
+		if err != nil {
+			p.ErrorPage(rw, 400, "Bad Request", err.Error())
+			return
+		}
 		session := &providers.SessionState{User: user}
 		p.SaveSession(rw, req, session)
 		http.Redirect(rw, req, redirect, 302)
@@ -560,11 +565,12 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 	p.SetCSRFCookie(rw, req, nonce)
 	redirect, err := p.GetRedirect(req)
 	if err != nil {
-		p.ErrorPage(rw, 500, "Internal Error", err.Error())
+		p.ErrorPage(rw, 400, "Bad Request", err.Error())
 		return
 	}
 	redirectURI := p.GetRedirectURI(req.Host)
-	http.Redirect(rw, req, p.provider.GetLoginURL(redirectURI, fmt.Sprintf("%v:%v", nonce, redirect)), 302)
+	state := fmt.Sprintf("%v:%v", nonce, redirect)
+	http.Redirect(rw, req, p.provider.GetLoginURL(redirectURI, state), 302)
 }
 
 func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
