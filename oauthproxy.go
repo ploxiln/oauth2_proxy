@@ -469,7 +469,7 @@ func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
 	if url.Path == p.SignInPath || url.Path == p.OAuthStartPath {
 		return false
 	}
-	if strings.HasPrefix(redirect, "/") && !strings.HasPrefix(redirect, "//") {
+	if strings.HasPrefix(redirect, "/") && !strings.HasPrefix(redirect, "//") && !strings.HasPrefix(redirect, "/\\") {
 		return true
 	}
 	if strings.HasPrefix(redirect, "http://") || strings.HasPrefix(redirect, "https://") {
