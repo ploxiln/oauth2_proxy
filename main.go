@@ -44,6 +44,7 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.Var(&emailDomains, "email-domain", "authenticate emails with the specified domain (may be given multiple times). Use * to authenticate any email")
 	flagSet.Var(&whitelistDomains, "whitelist-domain", "allowed domain for redirection after authentication, leading '.' allows subdomains (may be given multiple times)")
 	flagSet.String("azure-tenant", "common", "go to a tenant-specific or common (tenant-independent) endpoint.")
+	flagSet.String("bitbucket-team", "", "restrict logins to members of this team")
 	flagSet.String("github-org", "", "restrict logins to members of this organisation")
 	flagSet.String("github-team", "", "restrict logins to members of this team (slug) (may be given multiple times)")
 	flagSet.Var(&gitlabGroups, "gitlab-group", "restrict logins to members of this group (full path) (may be given multiple times)")

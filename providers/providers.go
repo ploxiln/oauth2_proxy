@@ -33,6 +33,8 @@ func New(provider string, p *ProviderData) Provider {
 		return NewOIDCProvider(p)
 	case "discord":
 		return NewDiscordProvider(p)
+	case "bitbucket":
+		return NewBitbucketProvider(p)
 	default:
 		return NewGoogleProvider(p)
 	}
