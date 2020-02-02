@@ -13,11 +13,12 @@ to validate accounts by email, domain or group.
 
 This repo [ploxiln/oauth2_proxy](https://github.com/ploxiln/oauth2_proxy)
 is a fork of [bitly/oauth2_proxy](https://github.com/bitly/oauth2_proxy)
-which is [no longer maintained](https://github.com/bitly/oauth2_proxy/issues/628#issuecomment-417121636).
+which is no longer maintained. You probably want to use the primary active fork
+which has many new features: [pusher/oauth2_proxy](https://github.com/pusher/oauth2_proxy).
 
-When your organization finds itself with a few instances of `oauth2_proxy` controlling access
-to different services on different domains for different groups,
-you may be interested in a more sophisticated auth system like [buzfeed/sso](https://github.com/buzzfeed/sso).
+When your organization finds itself with a many instances of `oauth2_proxy` controlling access
+to different services on different domains, you may be interested in a more sophisticated auth
+system like [buzfeed/sso](https://github.com/buzzfeed/sso).
 
 
 ## Architecture
@@ -321,11 +322,11 @@ Usage of oauth2_proxy:
 
 ### Upstreams Configuration
 
-`oauth2_proxy` supports having multiple upstreams, and has the option to pass requests on to HTTP(S) servers or serve static files from the file system. HTTP and HTTPS upstreams are configured by providing a URL such as `http://127.0.0.1:8080/` for the upstream parameter, that will forward all authenticated requests to be forwarded to the upstream server. If you instead provide `http://127.0.0.1:8080/some/path/` then it will only be requests that start with `/some/path/` which are forwarded to the upstream.
+`oauth2_proxy` supports having multiple upstreams, and has the option to pass requests on to HTTP(S) servers or serve static files from the file system. HTTP and HTTPS upstreams are configured by providing a URL such as `http://127.0.0.1:8080/`, and all authenticated requests will be forwarded to the upstream server. If you instead provide a URL like `http://127.0.0.1:8080/some/path/` then only requests with URL path prefix `/some/path/` are forwarded to the upstream.
 
 Static file paths are configured as a file:// URL. `file:///var/www/static/` will serve the files from that directory at `http://[oauth2_proxy url]/var/www/static/`, which may not be what you want. You can provide the path to where the files should be available by adding a fragment to the configured URL. The value of the fragment will then be used to specify which path the files are available at. `file:///var/www/static/#/static/` will ie. make `/var/www/static/` available at `http://[oauth2_proxy url]/static/`.
 
-Multiple upstreams can either be configured by supplying a comma separated list to the `-upstream` parameter, supplying the parameter multiple times or provinding a list in the [config file](#config-file). When multiple upstreams are used routing to them will be based on the path they are set up with.
+Multiple upstreams can either be configured by supplying a comma separated list to the `-upstream` parameter, supplying the parameter multiple times, or providing a list in the [config file](#config-file). When multiple upstreams are used, routing to them will be based on the path parts of the upstream URL and the request URL.
 
 
 ### Environment variables
