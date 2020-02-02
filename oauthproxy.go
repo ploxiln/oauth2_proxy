@@ -728,15 +728,13 @@ func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int
 	// At this point, the user is authenticated. proxy normally
 	if p.PassBasicAuth {
 		req.SetBasicAuth(session.User, p.BasicAuthPassword)
-		req.Header["X-Forwarded-User"] = []string{session.User}
-		if session.Email != "" {
-			req.Header["X-Forwarded-Email"] = []string{session.Email}
-		}
 	}
 	if p.PassUserHeaders {
-		req.Header["X-Forwarded-User"] = []string{session.User}
+		req.Header.Set("X-Forwarded-User", session.User)
 		if session.Email != "" {
-			req.Header["X-Forwarded-Email"] = []string{session.Email}
+			req.Header.Set("X-Forwarded-Email", session.Email)
+		} else {
+			req.Header.Del("X-Forwarded-Email")
 		}
 	}
 	if p.SetXAuthRequest {
@@ -748,8 +746,12 @@ func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int
 			rw.Header().Set("X-Auth-Request-Access-Token", session.AccessToken)
 		}
 	}
-	if p.PassAccessToken && session.AccessToken != "" {
-		req.Header["X-Forwarded-Access-Token"] = []string{session.AccessToken}
+	if p.PassAccessToken {
+		if session.AccessToken != "" {
+			req.Header.Set("X-Forwarded-Access-Token", session.AccessToken)
+		} else {
+			req.Header.Del("X-Forwarded-Access-Token")
+		}
 	}
 	if session.Email == "" {
 		rw.Header().Set("GAP-Auth", session.User)
