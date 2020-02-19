@@ -9,6 +9,10 @@
 # tls_cert_file = ""
 # tls_key_file = ""
 
+## whether to trust the X-Real-IP request header for logging
+## disable if not running oauth2_proxy behind another reverse-proxy or load-balancer
+# xheaders = true
+
 ## the OAuth Redirect URL
 ## defaults to "https://" + requested host header + "/oauth2/callback"
 # redirect_url = "https://internalapp.yourcompany.com/oauth2/callback"

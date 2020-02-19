@@ -329,6 +329,7 @@ Usage of oauth2_proxy:
   -validate-url string: Access token validation endpoint
   -version: print version string
   -whitelist-domain value: allowed domain for redirection after authentication, leading '.' allows subdomains (may be given multiple times)
+  -xheaders: Trust X-Real-IP request header (appropriate when behind a reverse proxy) (default true)
 ```
 
 

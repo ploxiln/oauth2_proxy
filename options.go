@@ -81,6 +81,7 @@ type Options struct {
 	Scope             string `flag:"scope" cfg:"scope"`
 	ApprovalPrompt    string `flag:"approval-prompt" cfg:"approval_prompt"`
 
+	XHeaders             bool   `flag:"xheaders" cfg:"xheaders"`
 	RequestLogging       bool   `flag:"request-logging" cfg:"request_logging"`
 	RequestLoggingFormat string `flag:"request-logging-format" cfg:"request_logging_format"`
 
@@ -118,6 +119,7 @@ func NewOptions() *Options {
 		PassAccessToken:      false,
 		PassHostHeader:       true,
 		ApprovalPrompt:       "force",
+		XHeaders:             true,
 		RequestLogging:       true,
 		RequestLoggingFormat: defaultRequestLoggingFormat,
 	}

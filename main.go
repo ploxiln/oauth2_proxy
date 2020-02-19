@@ -28,8 +28,8 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.String("tls-cert", "", "path to certificate file")
 	flagSet.String("tls-key", "", "path to private key file")
 	flagSet.String("redirect-url", "", "the OAuth Redirect URL. ie: \"https://internalapp.yourcompany.com/oauth2/callback\"")
-	flagSet.Bool("set-xauthrequest", false, "set X-Auth-Request-User and X-Auth-Request-Email response headers (useful in Nginx auth_request mode)")
 	flagSet.Var(&upstreams, "upstream", "the http url(s) of the upstream endpoint or file:// paths for static files. Routing is based on the path")
+	flagSet.Bool("set-xauthrequest", false, "set X-Auth-Request-User and X-Auth-Request-Email response headers (useful in Nginx auth_request mode)")
 	flagSet.Bool("pass-user-headers", true, "pass X-Forwarded-User and X-Forwarded-Email information to upstream")
 	flagSet.Bool("pass-basic-auth", true, "pass HTTP Basic Auth header to upstream")
 	flagSet.String("basic-auth-password", "", "the password to set when passing the HTTP Basic Auth header")
@@ -70,6 +70,7 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.Bool("cookie-secure", true, "set secure (HTTPS) cookie flag")
 	flagSet.Bool("cookie-httponly", true, "set HttpOnly cookie flag")
 
+	flagSet.Bool("xheaders", true, "Trust X-Real-IP request header (appropriate when behind a reverse proxy)")
 	flagSet.Bool("request-logging", true, "Log requests to stdout")
 	flagSet.String("request-logging-format", defaultRequestLoggingFormat, "Template for request log lines")
 
@@ -142,7 +143,7 @@ func main() {
 	}
 
 	s := &Server{
-		Handler: LoggingHandler(os.Stdout, oauthproxy, opts.RequestLogging, opts.RequestLoggingFormat),
+		Handler: LoggingHandler(os.Stdout, oauthproxy, opts.RequestLogging, opts.XHeaders, opts.RequestLoggingFormat),
 		Opts:    opts,
 	}
 	s.ListenAndServe()
