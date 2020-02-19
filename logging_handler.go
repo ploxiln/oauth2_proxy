@@ -107,15 +107,17 @@ type loggingHandler struct {
 	writer      io.Writer
 	handler     http.Handler
 	enabled     bool
+	xheaders    bool
 	logTemplate *template.Template
 }
 
-func LoggingHandler(out io.Writer, h http.Handler, v bool, requestLoggingTpl string) http.Handler {
+func LoggingHandler(out io.Writer, h http.Handler, enabled bool, xheaders bool, requestLoggingTpl string) http.Handler {
 	return loggingHandler{
 		writer:      out,
 		handler:     h,
-		enabled:     v,
-		logTemplate: template.Must(template.New("request-log").Parse(requestLoggingTpl)),
+		enabled:     enabled,
+		xheaders:    xheaders,
+		logTemplate: template.Must(template.New("request-log").Parse(requestLoggingTpl + "\n")),
 	}
 }
 
@@ -146,9 +148,9 @@ func (h loggingHandler) writeLogLine(username, upstream string, req *http.Reques
 		}
 	}
 
-	client := req.Header.Get("X-Real-IP")
-	if client == "" {
-		client = req.RemoteAddr
+	client := req.RemoteAddr
+	if h.xheaders && req.Header.Get("X-Real-IP") != "" {
+		client = req.Header.Get("X-Real-IP")
 	}
 
 	if c, _, err := net.SplitHostPort(client); err == nil {
@@ -171,6 +173,4 @@ func (h loggingHandler) writeLogLine(username, upstream string, req *http.Reques
 		UserAgent:       fmt.Sprintf("%q", req.UserAgent()),
 		Username:        username,
 	})
-
-	h.writer.Write([]byte("\n"))
 }

@@ -69,6 +69,7 @@ type OAuthProxy struct {
 	PassUserHeaders     bool
 	BasicAuthPassword   string
 	PassAccessToken     bool
+	XHeaders            bool
 	CookieCipher        *cookie.Cipher
 	skipAuthRegex       []string
 	skipAuthPreflight   bool
@@ -228,6 +229,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		BasicAuthPassword:  opts.BasicAuthPassword,
 		PassAccessToken:    opts.PassAccessToken,
 		SkipProviderButton: opts.SkipProviderButton,
+		XHeaders:           opts.XHeaders,
 		CookieCipher:       cipher,
 		templates:          loadTemplates(opts.CustomTemplatesDir),
 		Footer:             opts.Footer,
@@ -500,9 +502,9 @@ func (p *OAuthProxy) IsWhitelistedPath(path string) (ok bool) {
 	return
 }
 
-func getRemoteAddr(req *http.Request) (s string) {
+func (p *OAuthProxy) getRemoteAddr(req *http.Request) (s string) {
 	s = req.RemoteAddr
-	if req.Header.Get("X-Real-IP") != "" {
+	if p.XHeaders && req.Header.Get("X-Real-IP") != "" {
 		s += fmt.Sprintf(" (%q)", req.Header.Get("X-Real-IP"))
 	}
 	return
@@ -574,7 +576,7 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
-	remoteAddr := getRemoteAddr(req)
+	remoteAddr := p.getRemoteAddr(req)
 
 	// finish the oauth cycle
 	err := req.ParseForm()
@@ -661,7 +663,7 @@ func (p *OAuthProxy) Proxy(rw http.ResponseWriter, req *http.Request) {
 
 func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int {
 	var saveSession, clearSession, revalidated bool
-	remoteAddr := getRemoteAddr(req)
+	remoteAddr := p.getRemoteAddr(req)
 
 	session, sessionAge, err := p.LoadCookiedSession(req)
 	if err != nil {

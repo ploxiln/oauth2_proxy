@@ -31,7 +31,7 @@ func TestLoggingHandler_ServeHTTP(t *testing.T) {
 			w.Write([]byte("test"))
 		}
 
-		h := LoggingHandler(buf, http.HandlerFunc(handler), true, test.Format)
+		h := LoggingHandler(buf, http.HandlerFunc(handler), true, true, test.Format)
 
 		r, _ := http.NewRequest("GET", "/foo/bar", nil)
 		r.RemoteAddr = "127.0.0.1"
