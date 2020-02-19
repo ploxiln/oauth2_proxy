@@ -258,13 +258,17 @@ func (p *GitHubProvider) GetEmailAddress(s *SessionState) (string, error) {
 		return "", fmt.Errorf("%s unmarshaling %s", err, body)
 	}
 
+	returnEmail := ""
 	for _, email := range emails {
-		if email.Primary && email.Verified {
-			return email.Email, nil
+		if email.Verified {
+			returnEmail = email.Email
+			if email.Primary {
+				return returnEmail, nil
+			}
 		}
 	}
 
-	return "", nil
+	return returnEmail, nil
 }
 
 func (p *GitHubProvider) GetUserName(s *SessionState) (string, error) {
