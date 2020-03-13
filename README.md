@@ -265,7 +265,7 @@ An example [oauth2_proxy.cfg](contrib/oauth2_proxy.cfg.example) config file is i
 
 ```
 Usage of oauth2_proxy:
-  -approval-prompt string: OAuth approval_prompt (default "force")
+  -approval-prompt string: OAuth approval_prompt (see also: prompt) (default "force")
   -authenticated-emails-file string: authenticate against emails via file (one per line)
   -azure-tenant string: go to a tenant-specific or common (tenant-independent) endpoint. (default "common")
   -banner string: custom sign-in banner text/html. Use "-" to disable default banner.
@@ -303,6 +303,7 @@ Usage of oauth2_proxy:
   -pass-host-header: pass the request Host Header to upstream (default true)
   -pass-user-headers: pass X-Forwarded-User and X-Forwarded-Email information to upstream (default true)
   -profile-url string: Profile access endpoint
+  -prompt string: OIDC prompt (overrides approval-prompt)
   -provider string: OAuth provider (default "google")
   -proxy-prefix string: the url root path that this proxy should be nested under (e.g. /<oauth2>/sign_in) (default "/oauth2")
   -proxy-websockets: enables WebSocket proxying (default true)
