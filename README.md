@@ -14,11 +14,8 @@ to validate accounts by email, domain or group.
 This repo [ploxiln/oauth2_proxy](https://github.com/ploxiln/oauth2_proxy)
 is a fork of [bitly/oauth2_proxy](https://github.com/bitly/oauth2_proxy)
 which is no longer maintained. You probably want to use the primary active fork
-which has many new features: [pusher/oauth2_proxy](https://github.com/pusher/oauth2_proxy).
-
-When your organization finds itself with a many instances of `oauth2_proxy` controlling access
-to different services on different domains, you may be interested in a more sophisticated auth
-system like [buzfeed/sso](https://github.com/buzzfeed/sso).
+which has many new features: [oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy)
+(or, for many services/domains but only google support: [buzfeed/sso](https://github.com/buzzfeed/sso)).
 
 
 ## Architecture
