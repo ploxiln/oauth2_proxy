@@ -270,6 +270,7 @@ Usage of oauth2_proxy:
   -approval-prompt string: OAuth approval_prompt (default "force")
   -authenticated-emails-file string: authenticate against emails via file (one per line)
   -azure-tenant string: go to a tenant-specific or common (tenant-independent) endpoint. (default "common")
+  -banner string: custom sign-in banner text/html. Use "-" to disable default banner.
   -basic-auth-password string: the password to set when passing the HTTP Basic Auth header
   -client-id string: the OAuth Client ID: ie: "123456.apps.googleusercontent.com"
   -client-secret string: the OAuth Client Secret
@@ -286,7 +287,7 @@ Usage of oauth2_proxy:
   -display-htpasswd-form: display username / password login form if an htpasswd file is provided (default true)
   -email-domain value: authenticate emails with the specified domain (may be given multiple times). Use * to authenticate any email
   -flush-interval duration: period between response flushing when streaming responses (disabled by default)
-  -footer string: custom footer string. Use "-" to disable default footer.
+  -footer string: custom footer text/html. Use "-" to disable default footer.
   -github-org string: restrict logins to members of this organisation
   -github-team string: restrict logins to members of this team (slug) (may be given multiple times)
   -gitlab-group value: restrict logins to members of this group (full path) (may be given multiple times)
