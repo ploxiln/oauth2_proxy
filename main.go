@@ -74,6 +74,7 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.Duration("cookie-refresh", time.Duration(0), "refresh the cookie after this duration; 0 to disable")
 	flagSet.Bool("cookie-secure", true, "set secure (HTTPS) cookie flag")
 	flagSet.Bool("cookie-httponly", true, "set HttpOnly cookie flag")
+	flagSet.String("cookie-samesite", "", "set SameSite cookie attribute (lax, strict, none, or \"\")")
 
 	flagSet.Bool("request-logging", true, "Log requests to stdout")
 	flagSet.String("request-logging-format", defaultRequestLoggingFormat, "Template for request log lines")

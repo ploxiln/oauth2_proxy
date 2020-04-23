@@ -54,6 +54,7 @@ type Options struct {
 	CookieRefresh  time.Duration `flag:"cookie-refresh" cfg:"cookie_refresh" env:"OAUTH2_PROXY_COOKIE_REFRESH"`
 	CookieSecure   bool          `flag:"cookie-secure" cfg:"cookie_secure"`
 	CookieHttpOnly bool          `flag:"cookie-httponly" cfg:"cookie_httponly"`
+	CookieSameSite string        `flag:"cookie-samesite" cfg:"cookie_samesite"`
 
 	Upstreams             []string `flag:"upstream" cfg:"upstreams"`
 	SkipAuthRegex         []string `flag:"skip-auth-regex" cfg:"skip_auth_regex"`
@@ -224,6 +225,12 @@ func (o *Options) Validate() error {
 				"cookie_expire (%s)",
 			o.CookieRefresh.String(),
 			o.CookieExpire.String()))
+	}
+
+	switch o.CookieSameSite {
+	case "", "none", "lax", "strict":
+	default:
+		msgs = append(msgs, fmt.Sprintf("cookie_samesite (%s) must be one of ['', 'lax', 'strict', 'none']", o.CookieSameSite))
 	}
 
 	msgs = parseSignatureKey(o, msgs)
