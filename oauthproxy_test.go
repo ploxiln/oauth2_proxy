@@ -220,6 +220,39 @@ func TestIsValidRedirect(t *testing.T) {
 
 	invalidHttps2 := proxy.IsValidRedirect("https://evil.corp/redirect?rd=foo.bar")
 	assert.Equal(t, false, invalidHttps2)
+
+	openRedirect1 := proxy.IsValidRedirect("/\\evil.com")
+	assert.Equal(t, false, openRedirect1)
+
+	openRedirectSpace1 := proxy.IsValidRedirect("/ /evil.com")
+	assert.Equal(t, false, openRedirectSpace1)
+
+	openRedirectSpace2 := proxy.IsValidRedirect("/ \\evil.com")
+	assert.Equal(t, false, openRedirectSpace2)
+
+	openRedirectTab1 := proxy.IsValidRedirect("/\t/evil.com")
+	assert.Equal(t, false, openRedirectTab1)
+
+	openRedirectTab2 := proxy.IsValidRedirect("/\t\\evil.com")
+	assert.Equal(t, false, openRedirectTab2)
+
+	openRedirectVerticalTab1 := proxy.IsValidRedirect("/\v/evil.com")
+	assert.Equal(t, false, openRedirectVerticalTab1)
+
+	openRedirectVerticalTab2 := proxy.IsValidRedirect("/\v\\evil.com")
+	assert.Equal(t, false, openRedirectVerticalTab2)
+
+	openRedirectNewLine1 := proxy.IsValidRedirect("/\n/evil.com")
+	assert.Equal(t, false, openRedirectNewLine1)
+
+	openRedirectNewLine2 := proxy.IsValidRedirect("/\n\\evil.com")
+	assert.Equal(t, false, openRedirectNewLine2)
+
+	openRedirectCarriageReturn1 := proxy.IsValidRedirect("/\r/evil.com")
+	assert.Equal(t, false, openRedirectCarriageReturn1)
+
+	openRedirectCarriageReturn2 := proxy.IsValidRedirect("/\r\\evil.com")
+	assert.Equal(t, false, openRedirectCarriageReturn2)
 }
 
 type TestProvider struct {
