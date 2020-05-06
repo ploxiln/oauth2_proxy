@@ -143,6 +143,10 @@ func NewWebSocketOrRestReverseProxy(u *url.URL, opts *Options, auth hmacauth.Hma
 	return &UpstreamProxy{u.Host, proxy, wsProxy, auth}
 }
 
+func preventCaching(rw http.ResponseWriter) {
+	rw.Header().Set("Cache-Control", "no-store")
+}
+
 func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 	serveMux := http.NewServeMux()
 	var auth hmacauth.HmacAuth
@@ -379,6 +383,7 @@ func (p *OAuthProxy) RobotsTxt(rw http.ResponseWriter) {
 }
 
 func (p *OAuthProxy) PingPage(rw http.ResponseWriter) {
+	preventCaching(rw)
 	rw.WriteHeader(http.StatusOK)
 	fmt.Fprintf(rw, "OK")
 }
@@ -399,6 +404,7 @@ func (p *OAuthProxy) ErrorPage(rw http.ResponseWriter, code int, title string, m
 }
 
 func (p *OAuthProxy) SignInPage(rw http.ResponseWriter, req *http.Request, code int) {
+	preventCaching(rw)
 	p.ClearSessionCookie(rw, req)
 	rw.WriteHeader(code)
 
@@ -541,6 +547,7 @@ func (p *OAuthProxy) SignIn(rw http.ResponseWriter, req *http.Request) {
 			p.ErrorPage(rw, 400, "Bad Request", err.Error())
 			return
 		}
+		preventCaching(rw)
 		session := &providers.SessionState{User: user}
 		p.SaveSession(rw, req, session)
 		http.Redirect(rw, req, redirect, 302)
@@ -554,11 +561,13 @@ func (p *OAuthProxy) SignIn(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *OAuthProxy) SignOut(rw http.ResponseWriter, req *http.Request) {
+	preventCaching(rw)
 	p.ClearSessionCookie(rw, req)
 	http.Redirect(rw, req, "/", 302)
 }
 
 func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
+	preventCaching(rw)
 	nonce, err := cookie.Nonce()
 	if err != nil {
 		p.ErrorPage(rw, 500, "Internal Error", err.Error())
@@ -576,6 +585,7 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
+	preventCaching(rw)
 	remoteAddr := p.getRemoteAddr(req)
 
 	// finish the oauth cycle
@@ -637,6 +647,7 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *OAuthProxy) AuthenticateOnly(rw http.ResponseWriter, req *http.Request) {
+	preventCaching(rw)
 	status := p.Authenticate(rw, req)
 	if status == http.StatusAccepted {
 		rw.WriteHeader(http.StatusAccepted)
