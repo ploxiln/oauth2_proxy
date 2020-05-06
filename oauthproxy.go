@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	b64 "encoding/base64"
 	"errors"
 	"fmt"
@@ -139,6 +140,9 @@ func NewWebSocketOrRestReverseProxy(u *url.URL, opts *Options, auth hmacauth.Hma
 		wsScheme := "ws" + strings.TrimPrefix(u.Scheme, "http")
 		wsURL := &url.URL{Scheme: wsScheme, Host: u.Host}
 		wsProxy = wsutil.NewSingleHostReverseProxy(wsURL)
+		if opts.SSLInsecureSkipVerify {
+			wsProxy.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		}
 	}
 	return &UpstreamProxy{u.Host, proxy, wsProxy, auth}
 }
