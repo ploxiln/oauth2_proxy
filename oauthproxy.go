@@ -476,9 +476,11 @@ func (p *OAuthProxy) GetRedirect(req *http.Request) (redirect string, err error)
 func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
 	url, err := url.Parse(redirect)
 	if err != nil {
+		log.Printf("invalid redirect: failed to parse url: %q", redirect)
 		return false
 	}
 	if url.Path == p.SignInPath || url.Path == p.OAuthStartPath {
+		log.Printf("invalid redirect: is auth start or sign_in path: %q", redirect)
 		return false
 	}
 	if strings.HasPrefix(redirect, "/") && !strings.HasPrefix(redirect, "//") && !strings.HasPrefix(redirect, "/\\") {
@@ -493,6 +495,7 @@ func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
 				return true
 			}
 		}
+		log.Printf("invalid redirect: domain not in whitelist: %q", redirect)
 	}
 	return false
 }
