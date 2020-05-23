@@ -2,7 +2,10 @@ package main
 
 import (
 	"crypto"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"net/url"
 	"strings"
 	"testing"
@@ -282,4 +285,74 @@ func TestSkipOIDCDiscovery(t *testing.T) {
 	o.OIDCJwksURL = "https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com/discovery/v2.0/keys"
 
 	assert.Equal(t, nil, o.Validate())
+}
+
+func TestSecretBytesEncoded(t *testing.T) {
+	for _, secretSize := range []int{16, 24, 32} {
+		t.Run(fmt.Sprintf("%d", secretSize), func(t *testing.T) {
+			secret := make([]byte, secretSize)
+			_, err := io.ReadFull(rand.Reader, secret)
+			assert.Equal(t, nil, err)
+
+			// We test both padded & raw Base64 to ensure we handle both
+			// potential user input routes for Base64
+			base64Padded := base64.URLEncoding.EncodeToString(secret)
+			sb := secretBytes(base64Padded)
+			assert.Equal(t, secret, sb)
+			assert.Equal(t, len(sb), secretSize)
+
+			base64Raw := base64.RawURLEncoding.EncodeToString(secret)
+			sb = secretBytes(base64Raw)
+			assert.Equal(t, secret, sb)
+			assert.Equal(t, len(sb), secretSize)
+		})
+	}
+}
+
+// A string that isn't intended as Base64 and still decodes (but to unintended length)
+// will return the original secret as bytes
+func TestSecretBytesEncodedWrongSize(t *testing.T) {
+	for _, secretSize := range []int{15, 20, 28, 33, 44} {
+		t.Run(fmt.Sprintf("%d", secretSize), func(t *testing.T) {
+			secret := make([]byte, secretSize)
+			_, err := io.ReadFull(rand.Reader, secret)
+			assert.Equal(t, nil, err)
+
+			// We test both padded & raw Base64 to ensure we handle both
+			// potential user input routes for Base64
+			base64Padded := base64.URLEncoding.EncodeToString(secret)
+			sb := secretBytes(base64Padded)
+			assert.NotEqual(t, secret, sb)
+			assert.NotEqual(t, len(sb), secretSize)
+			// The given secret is returned as []byte
+			assert.Equal(t, base64Padded, string(sb))
+
+			base64Raw := base64.RawURLEncoding.EncodeToString(secret)
+			sb = secretBytes(base64Raw)
+			assert.NotEqual(t, secret, sb)
+			assert.NotEqual(t, len(sb), secretSize)
+			// The given secret is returned as []byte
+			assert.Equal(t, base64Raw, string(sb))
+		})
+	}
+}
+
+func TestSecretBytesNonBase64(t *testing.T) {
+	trailer := "equals=========="
+	assert.Equal(t, trailer, string(secretBytes(trailer)))
+
+	raw16 := "asdflkjhqwer)(*&"
+	sb16 := secretBytes(raw16)
+	assert.Equal(t, raw16, string(sb16))
+	assert.Equal(t, 16, len(sb16))
+
+	raw24 := "asdflkjhqwer)(*&CJEN#$%^"
+	sb24 := secretBytes(raw24)
+	assert.Equal(t, raw24, string(sb24))
+	assert.Equal(t, 24, len(sb24))
+
+	raw32 := "asdflkjhqwer)(*&1234lkjhqwer)(*&"
+	sb32 := secretBytes(raw32)
+	assert.Equal(t, raw32, string(sb32))
+	assert.Equal(t, 32, len(sb32))
 }
