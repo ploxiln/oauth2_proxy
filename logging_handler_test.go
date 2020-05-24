@@ -2,21 +2,24 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLoggingHandler_ServeHTTP(t *testing.T) {
-	ts := time.Now()
+	datestr := time.Now().Format(`02/Jan/2006:15:04`)
 
 	tests := []struct {
 		Format,
-		ExpectedLogMessage string
+		Expected string
 	}{
-		{defaultRequestLoggingFormat, fmt.Sprintf("127.0.0.1 - - [%s] test-server GET - \"/foo/bar\" HTTP/1.1 \"\" 200 4 0.000\n", ts.Format("02/Jan/2006:15:04:05 -0700"))},
+		{defaultRequestLoggingFormat,
+			`127.0.0.1 - - \[` + datestr + `:\d{2} [+-]\d{4}\] test-server GET - "/foo/bar" HTTP/1.1 "" 200 4 0.\d{3}` + "\n"},
 		{"{{.RequestMethod}}", "GET\n"},
 	}
 
@@ -32,16 +35,13 @@ func TestLoggingHandler_ServeHTTP(t *testing.T) {
 		}
 
 		h := LoggingHandler(buf, http.HandlerFunc(handler), true, true, test.Format)
-
 		r, _ := http.NewRequest("GET", "/foo/bar", nil)
 		r.RemoteAddr = "127.0.0.1"
 		r.Host = "test-server"
 
 		h.ServeHTTP(httptest.NewRecorder(), r)
 
-		actual := buf.String()
-		if actual != test.ExpectedLogMessage {
-			t.Errorf("Log message was\n%s\ninstead of expected \n%s", actual, test.ExpectedLogMessage)
-		}
+		re := regexp.MustCompile(test.Expected)
+		assert.Regexp(t, re, buf.String())
 	}
 }
