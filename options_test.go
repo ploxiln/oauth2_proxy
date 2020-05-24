@@ -118,11 +118,8 @@ func TestProxyURLsError(t *testing.T) {
 	o.Upstreams = append(o.Upstreams, "127.0.0.1:8081")
 	err := o.Validate()
 	assert.NotEqual(t, nil, err)
-
-	expected := errorMsg([]string{
-		"error parsing upstream: parse 127.0.0.1:8081: " +
-			"first path segment in URL cannot contain colon"})
-	assert.Equal(t, expected, err.Error())
+	assert.Contains(t, err.Error(), "error parsing upstream")
+	assert.Contains(t, err.Error(), "first path segment in URL cannot contain colon")
 }
 
 func TestCompiledRegex(t *testing.T) {
