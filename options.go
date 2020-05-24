@@ -83,9 +83,9 @@ type Options struct {
 	Prompt            string `flag:"prompt" cfg:"prompt"`
 	ApprovalPrompt    string `flag:"approval-prompt" cfg:"approval_prompt"` // Deprecated by OIDC 1.0
 
-	XHeaders             bool   `flag:"xheaders" cfg:"xheaders"`
 	RequestLogging       bool   `flag:"request-logging" cfg:"request_logging"`
 	RequestLoggingFormat string `flag:"request-logging-format" cfg:"request_logging_format"`
+	RealClientIPHeader   string `flag:"real-client-ip-header" cfg:"real_client_ip_header"`
 
 	SignatureKey string `flag:"signature-key" cfg:"signature_key" env:"OAUTH2_PROXY_SIGNATURE_KEY"`
 
@@ -122,9 +122,9 @@ func NewOptions() *Options {
 		PassHostHeader:       true,
 		Prompt:               "", // Change to "login" when ApprovalPrompt deprecated/removed
 		ApprovalPrompt:       "force",
-		XHeaders:             true,
 		RequestLogging:       true,
 		RequestLoggingFormat: defaultRequestLoggingFormat,
+		RealClientIPHeader:   "X-Real-IP",
 	}
 }
 
@@ -224,6 +224,23 @@ func (o *Options) Validate() error {
 
 	msgs = parseSignatureKey(o, msgs)
 	msgs = validateCookieName(o, msgs)
+
+	if o.RealClientIPHeader != "" {
+		valid := false
+		realClientIPHeaders := []string{
+			"X-Real-IP",
+			"X-Forwarded-For",
+			"X-ProxyUser-IP",
+		}
+		for _, s := range realClientIPHeaders {
+			if o.RealClientIPHeader == s {
+				valid = true
+			}
+		}
+		if !valid {
+			msgs = append(msgs, fmt.Sprintf("unsupported real-client-ip-header %q", o.RealClientIPHeader))
+		}
+	}
 
 	if len(msgs) != 0 {
 		return fmt.Errorf("Invalid configuration:\n  %s",

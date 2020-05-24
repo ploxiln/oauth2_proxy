@@ -70,7 +70,7 @@ type OAuthProxy struct {
 	PassUserHeaders     bool
 	BasicAuthPassword   string
 	PassAccessToken     bool
-	XHeaders            bool
+	ClientIPHeader      string
 	CookieCipher        *cookie.Cipher
 	skipAuthRegex       []string
 	skipAuthPreflight   bool
@@ -237,7 +237,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		BasicAuthPassword:  opts.BasicAuthPassword,
 		PassAccessToken:    opts.PassAccessToken,
 		SkipProviderButton: opts.SkipProviderButton,
-		XHeaders:           opts.XHeaders,
+		ClientIPHeader:     opts.RealClientIPHeader,
 		CookieCipher:       cipher,
 		templates:          loadTemplates(opts.CustomTemplatesDir),
 		Footer:             opts.Footer,
@@ -521,8 +521,10 @@ func (p *OAuthProxy) IsWhitelistedPath(path string) (ok bool) {
 
 func (p *OAuthProxy) getRemoteAddr(req *http.Request) (s string) {
 	s = req.RemoteAddr
-	if p.XHeaders && req.Header.Get("X-Real-IP") != "" {
-		s += fmt.Sprintf(" (%q)", req.Header.Get("X-Real-IP"))
+
+	hval := extractClientIP(req, p.ClientIPHeader)
+	if hval != "" {
+		s += fmt.Sprintf(" (%q)", hval)
 	}
 	return
 }
