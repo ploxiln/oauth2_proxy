@@ -331,11 +331,9 @@ func validateCookieName(o *Options, msgs []string) []string {
 	return msgs
 }
 
+// for base64 which has had '=' padding trimmed off
 func addPadding(secret string) string {
-	padding := len(secret) % 4
-	switch padding {
-	case 1:
-		return secret + "==="
+	switch len(secret) % 4 {
 	case 2:
 		return secret + "=="
 	case 3:
@@ -349,7 +347,9 @@ func addPadding(secret string) string {
 func secretBytes(secret string) []byte {
 	b, err := base64.URLEncoding.DecodeString(addPadding(secret))
 	if err == nil {
-		return []byte(addPadding(string(b)))
+		if len(b) == 16 || len(b) == 24 || len(b) == 32 {
+			return b
+		}
 	}
 	return []byte(secret)
 }

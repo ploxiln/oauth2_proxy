@@ -313,8 +313,7 @@ func TestBasicAuthPassword(t *testing.T) {
 	}))
 	opts := NewOptions()
 	opts.Upstreams = append(opts.Upstreams, provider_server.URL)
-	// The CookieSecret must be 32 bytes in order to create the AES
-	// cipher.
+	// The CookieSecret must be 32 bytes in order to create the AES cipher
 	opts.CookieSecret = "xyzzyplughxyzzyplughxyzzyplughxp"
 	opts.ClientID = "bazquux"
 	opts.ClientSecret = "foobar"
@@ -407,8 +406,7 @@ func NewPassAccessTokenTest(opts PassAccessTokenTestOptions) *PassAccessTokenTes
 
 	t.opts = NewOptions()
 	t.opts.Upstreams = append(t.opts.Upstreams, t.provider_server.URL)
-	// The CookieSecret must be 32 bytes in order to create the AES
-	// cipher.
+	// The CookieSecret must be 32 bytes in order to create the AES cipher
 	t.opts.CookieSecret = "xyzzyplughxyzzyplughxyzzyplughxp"
 	t.opts.ClientID = "bazquux"
 	t.opts.ClientSecret = "foobar"
@@ -639,7 +637,7 @@ func NewProcessCookieTest(opts ProcessCookieTestOpts) *ProcessCookieTest {
 	pc_test.opts = NewOptions()
 	pc_test.opts.ClientID = "bazquux"
 	pc_test.opts.ClientSecret = "xyzzyplugh"
-	pc_test.opts.CookieSecret = "0123456789abcdefabcd"
+	pc_test.opts.CookieSecret = "0123456789abcdef012345=="
 	// First, set the CookieRefresh option so proxy.AesCipher is created,
 	// needed to encrypt the access_token.
 	pc_test.opts.CookieRefresh = time.Hour
