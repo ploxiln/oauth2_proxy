@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -25,6 +26,7 @@ func mainFlagSet() *flag.FlagSet {
 
 	flagSet.String("http-address", "127.0.0.1:4180", "[http://]<addr>:<port> or unix://<path> to listen on for HTTP clients")
 	flagSet.String("https-address", ":443", "<addr>:<port> to listen on for HTTPS clients")
+	flagSet.Bool("force-https", false, "redirect http requests to https")
 	flagSet.String("tls-cert", "", "path to certificate file")
 	flagSet.String("tls-key", "", "path to private key file")
 	flagSet.String("redirect-url", "", "the OAuth Redirect URL. ie: \"https://internalapp.yourcompany.com/oauth2/callback\"")
@@ -150,8 +152,19 @@ func main() {
 		}
 	}
 
+	var handler http.Handler = oauthproxy
+	if opts.ForceHTTPS {
+		handler = redirectToHTTPS(handler, opts.HttpsAddress)
+	}
+	if opts.RequestLogging {
+		handler = LoggingHandler(
+			os.Stdout, handler, opts.RealClientIPHeader, opts.RequestLoggingFormat,
+		)
+	} else {
+		handler = NoLoggingHandler(handler)
+	}
 	s := &Server{
-		Handler: LoggingHandler(os.Stdout, oauthproxy, opts.RequestLogging, opts.RealClientIPHeader, opts.RequestLoggingFormat),
+		Handler: handler,
 		Opts:    opts,
 	}
 	s.ListenAndServe()
