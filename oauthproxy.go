@@ -310,13 +310,7 @@ func (p *OAuthProxy) makeCookie(req *http.Request, name string, value string, ex
 			log.Printf("Warning: request host is %q but using configured cookie domain of %q", domain, p.CookieDomain)
 		}
 	}
-	if len(value) > 3600 {
-		// nginx default response header limit is 4KiB, other software may have similar limits
-		// threshold includes margin for header name, cookie name, other cookie options
-		log.Printf("WARNING - %s cookie is very big: %d bytes", name, len(value))
-	}
-
-	return &http.Cookie{
+	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		Path:     p.CookiePath,
@@ -325,6 +319,11 @@ func (p *OAuthProxy) makeCookie(req *http.Request, name string, value string, ex
 		Secure:   p.CookieSecure,
 		Expires:  now.Add(expiration),
 	}
+	if len(cookie.String()) > 4000 {
+		// may exceed nginx default header limit and browser per-cookie limit
+		log.Printf("WARNING: cookie %q may be too big: %d bytes", name, len(value))
+	}
+	return cookie
 }
 
 func (p *OAuthProxy) ClearCSRFCookie(rw http.ResponseWriter, req *http.Request) {
