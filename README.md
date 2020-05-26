@@ -307,6 +307,7 @@ Usage of oauth2_proxy:
   -provider string: OAuth provider (default "google")
   -proxy-prefix string: the url root path that this proxy should be nested under (e.g. /<oauth2>/sign_in) (default "/oauth2")
   -proxy-websockets: enables WebSocket proxying (default true)
+  -real-client-ip-header: HTTP header indicating the actual ip address of the client (blank to disable) (default "X-Real-IP")
   -redeem-url string: Token redemption endpoint
   -redirect-url string: the OAuth Redirect URL. ie: "https://internalapp.yourcompany.com/oauth2/callback"
   -request-logging: Log requests to stdout (default true)
@@ -326,7 +327,6 @@ Usage of oauth2_proxy:
   -validate-url string: Access token validation endpoint
   -version: print version string
   -whitelist-domain value: allowed domain for redirection after authentication, leading '.' allows subdomains (may be given multiple times)
-  -xheaders: Trust X-Real-IP request header (appropriate when behind a reverse proxy) (default true)
 ```
 
 

@@ -108,3 +108,17 @@ func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	tc.SetKeepAlivePeriod(3 * time.Minute)
 	return tc, nil
 }
+
+// extract client ip address from configured header
+func extractClientIP(req *http.Request, header string) string {
+	if header != "" {
+		val := req.Header.Get(header)
+		if val != "" {
+			if header == "X-Forwarded-For" {
+				val = strings.TrimSpace(strings.SplitN(val, ",", 2)[0])
+			}
+			return val
+		}
+	}
+	return ""
+}

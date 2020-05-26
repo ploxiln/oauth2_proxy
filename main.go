@@ -71,9 +71,9 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.Bool("cookie-secure", true, "set secure (HTTPS) cookie flag")
 	flagSet.Bool("cookie-httponly", true, "set HttpOnly cookie flag")
 
-	flagSet.Bool("xheaders", true, "Trust X-Real-IP request header (appropriate when behind a reverse proxy)")
 	flagSet.Bool("request-logging", true, "Log requests to stdout")
 	flagSet.String("request-logging-format", defaultRequestLoggingFormat, "Template for request log lines")
+	flagSet.String("real-client-ip-header", "X-Real-IP", "HTTP header indicating the actual ip address of the client (blank to disable)")
 
 	flagSet.String("provider", "google", "OAuth provider")
 	flagSet.String("oidc-issuer-url", "", "OpenID Connect issuer URL (e.g. https://accounts.google.com)")
@@ -151,7 +151,7 @@ func main() {
 	}
 
 	s := &Server{
-		Handler: LoggingHandler(os.Stdout, oauthproxy, opts.RequestLogging, opts.XHeaders, opts.RequestLoggingFormat),
+		Handler: LoggingHandler(os.Stdout, oauthproxy, opts.RequestLogging, opts.RealClientIPHeader, opts.RequestLoggingFormat),
 		Opts:    opts,
 	}
 	s.ListenAndServe()

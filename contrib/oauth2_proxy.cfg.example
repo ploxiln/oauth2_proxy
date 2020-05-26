@@ -9,9 +9,9 @@
 # tls_cert_file = ""
 # tls_key_file = ""
 
-## whether to trust the X-Real-IP request header for logging
+## can be set to "X-Real-IP" (default), "X-Forwarded-For", "X-ProxyUser-IP", or "" (disabled)
 ## disable if not running oauth2_proxy behind another reverse-proxy or load-balancer
-# xheaders = true
+# real_client_ip_header = "X-Real-IP"
 
 ## the OAuth Redirect URL
 ## defaults to "https://" + requested host header + "/oauth2/callback"
