@@ -10,13 +10,12 @@ import (
 	"path"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 type GitHubProvider struct {
 	*ProviderData
-	Org  string
-	Team string
+	Org   string
+	Teams []string
 }
 
 func NewGitHubProvider(p *ProviderData) *GitHubProvider {
@@ -56,10 +55,10 @@ func getGitHubHeader(accessToken string) http.Header {
 	return header
 }
 
-func (p *GitHubProvider) SetOrgTeam(org, team string) {
+func (p *GitHubProvider) SetOrgTeam(org string, teams []string) {
 	p.Org = org
-	p.Team = team
-	if org != "" || team != "" {
+	p.Teams = teams
+	if org != "" || len(teams) > 0 {
 		p.Scope += " read:org"
 	}
 }
@@ -178,8 +177,7 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 			presentOrgs[team.Org.Login] = true
 			if p.Org == team.Org.Login {
 				hasOrg = true
-				ts := strings.Split(p.Team, ",")
-				for _, t := range ts {
+				for _, t := range p.Teams {
 					if t == team.Slug {
 						log.Printf("Found Github Organization:%q Team:%q (Name:%q)",
 							team.Org.Login, team.Slug, team.Name)
@@ -198,13 +196,13 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 	}
 
 	if hasOrg {
-		log.Printf("Missing Team:%q from Org:%q in teams: %v", p.Team, p.Org, presentTeams)
+		log.Printf("Missing Team:%v from Org:%q in teams: %v", p.Teams, p.Org, presentTeams)
 	} else {
 		var allOrgs []string
 		for org, _ := range presentOrgs {
 			allOrgs = append(allOrgs, org)
 		}
-		log.Printf("Missing Organization:%q in %#v", p.Org, allOrgs)
+		log.Printf("Missing Organization:%q in %v", p.Org, allOrgs)
 	}
 	return false, nil
 }
@@ -219,7 +217,7 @@ func (p *GitHubProvider) GetEmailAddress(s *SessionState) (string, error) {
 
 	// if we require an Org or Team, check that first
 	if p.Org != "" {
-		if p.Team != "" {
+		if len(p.Teams) > 0 {
 			if ok, err := p.hasOrgAndTeam(s.AccessToken); err != nil || !ok {
 				return "", err
 			}

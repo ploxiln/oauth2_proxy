@@ -23,12 +23,13 @@ func mainFlagSet() *flag.FlagSet {
 	skipAuthRegex := StringArray{}
 	googleGroups := StringArray{}
 	gitlabGroups := StringArray{}
+	githubTeams := StringArray{}
 
 	flagSet.String("http-address", "127.0.0.1:4180", "[http://]<addr>:<port> or unix://<path> to listen on for HTTP clients")
 	flagSet.String("https-address", ":443", "<addr>:<port> to listen on for HTTPS clients")
 	flagSet.Bool("force-https", false, "redirect http requests to https")
-	flagSet.String("tls-cert", "", "path to certificate file")
-	flagSet.String("tls-key", "", "path to private key file")
+	flagSet.String("tls-cert-file", "", "path to certificate file")
+	flagSet.String("tls-key-file", "", "path to private key file")
 	flagSet.String("redirect-url", "", "the OAuth Redirect URL. ie: \"https://internalapp.yourcompany.com/oauth2/callback\"")
 	flagSet.Var(&upstreams, "upstream", "the http url(s) of the upstream endpoint or file:// paths for static files. Routing is based on the path")
 	flagSet.Bool("set-xauthrequest", false, "set X-Auth-Request-User and X-Auth-Request-Email response headers (useful in Nginx auth_request mode)")
@@ -48,7 +49,7 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.String("azure-tenant", "common", "go to a tenant-specific or common (tenant-independent) endpoint.")
 	flagSet.String("bitbucket-team", "", "restrict logins to members of this team")
 	flagSet.String("github-org", "", "restrict logins to members of this organisation")
-	flagSet.String("github-team", "", "restrict logins to members of this team (slug) (may be given multiple times)")
+	flagSet.Var(&githubTeams, "github-team", "restrict logins to members of this team (slug) (may be given multiple times)")
 	flagSet.Var(&gitlabGroups, "gitlab-group", "restrict logins to members of this group (full path) (may be given multiple times)")
 	flagSet.Var(&googleGroups, "google-group", "restrict logins to members of this google group (may be given multiple times)")
 	flagSet.String("google-admin-email", "", "the google admin to impersonate for api calls")

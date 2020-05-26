@@ -18,7 +18,7 @@ import (
 
 // Configuration Options that can be set by Command Line Flag, or Config File
 type Options struct {
-	ProxyPrefix     string `flag:"proxy-prefix" cfg:"proxy-prefix"`
+	ProxyPrefix     string `flag:"proxy-prefix" cfg:"proxy_prefix"`
 	ProxyWebSockets bool   `flag:"proxy-websockets" cfg:"proxy_websockets"`
 	HttpAddress     string `flag:"http-address" cfg:"http_address"`
 	HttpsAddress    string `flag:"https-address" cfg:"https_address"`
@@ -26,8 +26,8 @@ type Options struct {
 	RedirectURL     string `flag:"redirect-url" cfg:"redirect_url"`
 	ClientID        string `flag:"client-id" cfg:"client_id" env:"OAUTH2_PROXY_CLIENT_ID"`
 	ClientSecret    string `flag:"client-secret" cfg:"client_secret" env:"OAUTH2_PROXY_CLIENT_SECRET"`
-	TLSCertFile     string `flag:"tls-cert" cfg:"tls_cert_file"`
-	TLSKeyFile      string `flag:"tls-key" cfg:"tls_key_file"`
+	TLSCertFile     string `flag:"tls-cert-file" cfg:"tls_cert_file"`
+	TLSKeyFile      string `flag:"tls-key-file" cfg:"tls_key_file"`
 
 	AuthenticatedEmailsFile  string   `flag:"authenticated-emails-file" cfg:"authenticated_emails_file"`
 	AzureTenant              string   `flag:"azure-tenant" cfg:"azure_tenant"`
@@ -35,9 +35,9 @@ type Options struct {
 	EmailDomains             []string `flag:"email-domain" cfg:"email_domains"`
 	WhitelistDomains         []string `flag:"whitelist-domain" cfg:"whitelist_domains" env:"OAUTH2_PROXY_WHITELIST_DOMAINS"`
 	GitHubOrg                string   `flag:"github-org" cfg:"github_org"`
-	GitHubTeam               string   `flag:"github-team" cfg:"github_team"`
+	GitHubTeams              []string `flag:"github-team" cfg:"github_teams"`
 	GitLabGroups             []string `flag:"gitlab-group" cfg:"gitlab_groups"`
-	GoogleGroups             []string `flag:"google-group" cfg:"google_group"`
+	GoogleGroups             []string `flag:"google-group" cfg:"google_groups"`
 	GoogleAdminEmail         string   `flag:"google-admin-email" cfg:"google_admin_email"`
 	GoogleServiceAccountJSON string   `flag:"google-service-account-json" cfg:"google_service_account_json"`
 	HtpasswdFile             string   `flag:"htpasswd-file" cfg:"htpasswd_file"`
@@ -272,7 +272,7 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 	case *providers.BitbucketProvider:
 		p.SetTeam(o.BitbucketTeam)
 	case *providers.GitHubProvider:
-		p.SetOrgTeam(o.GitHubOrg, o.GitHubTeam)
+		p.SetOrgTeam(o.GitHubOrg, o.GitHubTeams)
 	case *providers.GitLabProvider:
 		p.SetGroups(o.GitLabGroups)
 	case *providers.GoogleProvider:

@@ -145,7 +145,7 @@ The Azure AD auth provider uses `openid` as it default scope. It uses `https://g
 The GitHub auth provider supports two additional parameters to restrict authentication to Organization or Team level access. Restricting by org and team is normally accompanied with `--email-domain=*`
 
     -github-org="": restrict logins to members of this organisation
-    -github-team="": restrict logins to members of any of these teams (slug), separated by a comma
+    -github-team="": restrict logins to members of this team (slug) (or teams, if this flag is given multiple times)
 
 If you are using GitHub enterprise, make sure you set the following to the appropriate url:
 
@@ -321,8 +321,8 @@ Usage of oauth2_proxy:
   -skip-oidc-discovery: Skip OIDC discovery (login-url, redeem-url and oidc-jwks-url must be configured)
   -skip-provider-button: will skip sign-in-page to directly reach the next step: oauth/start
   -ssl-insecure-skip-verify: skip validation of certificates presented when using HTTPS
-  -tls-cert string: path to certificate file
-  -tls-key string: path to private key file
+  -tls-cert-file string: path to certificate file
+  -tls-key-file string: path to private key file
   -upstream value: the http url(s) of the upstream endpoint or file:// paths for static files. Routing is based on the path
   -validate-url string: Access token validation endpoint
   -version: print version string
