@@ -125,7 +125,8 @@ func extractClientIP(req *http.Request, header string) string {
 
 func redirectToHTTPS(h http.Handler, httpsAddr string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.TLS == nil && strings.ToLower(r.Header.Get("X-Forwarded-Proto")) != "https" {
+		proto := strings.ToLower(r.Header.Get("X-Forwarded-Proto"))
+		if ((r.TLS == nil && proto != "https") || (r.TLS != nil && proto == "http")) && r.URL.Path != "/ping" {
 			url := *r.URL
 			host := strings.Split(r.Host, ":")[0]
 			if !strings.HasSuffix(httpsAddr, ":443") {
