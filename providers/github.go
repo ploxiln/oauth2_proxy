@@ -188,7 +188,7 @@ func (p *GitHubProvider) hasOrgAndTeam(accessToken string) (bool, error) {
 			}
 		}
 
-		matches := pattern.FindStringSubmatch(resp.Header["Link"][0])
+		matches := pattern.FindStringSubmatch(resp.Header.Get("Link"))
 		if len(matches) == 0 {
 			break
 		}
