@@ -107,7 +107,7 @@ func TestRequestUnparsedResponseUsingAccessTokenParameterFailedResponse(t *testi
 func TestRequestUnparsedResponseUsingHeaders(t *testing.T) {
 	backend := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == "/" && r.Header["Auth"][0] == "my_token" {
+			if r.URL.Path == "/" && r.Header.Get("Auth") == "my_token" {
 				w.WriteHeader(200)
 				w.Write([]byte("some payload"))
 			} else {
