@@ -22,6 +22,7 @@ type Options struct {
 	ProxyWebSockets bool   `flag:"proxy-websockets" cfg:"proxy_websockets"`
 	HttpAddress     string `flag:"http-address" cfg:"http_address"`
 	HttpsAddress    string `flag:"https-address" cfg:"https_address"`
+	ForceHTTPS      bool   `flag:"force-https" cfg:"force_https"`
 	RedirectURL     string `flag:"redirect-url" cfg:"redirect_url"`
 	ClientID        string `flag:"client-id" cfg:"client_id" env:"OAUTH2_PROXY_CLIENT_ID"`
 	ClientSecret    string `flag:"client-secret" cfg:"client_secret" env:"OAUTH2_PROXY_CLIENT_SECRET"`
@@ -108,6 +109,7 @@ func NewOptions() *Options {
 		ProxyWebSockets:      true,
 		HttpAddress:          "127.0.0.1:4180",
 		HttpsAddress:         ":443",
+		ForceHTTPS:           false,
 		DisplayHtpasswdForm:  true,
 		CookieName:           "_oauth2_proxy",
 		CookieSecure:         true,

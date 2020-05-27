@@ -106,16 +106,14 @@ type logMessageData struct {
 type loggingHandler struct {
 	writer      io.Writer
 	handler     http.Handler
-	enabled     bool
 	ipHeader    string
 	logTemplate *template.Template
 }
 
-func LoggingHandler(out io.Writer, h http.Handler, enabled bool, ipHeader, requestLoggingTpl string) http.Handler {
+func LoggingHandler(out io.Writer, h http.Handler, ipHeader, requestLoggingTpl string) http.Handler {
 	return loggingHandler{
 		writer:      out,
 		handler:     h,
-		enabled:     enabled,
 		ipHeader:    ipHeader,
 		logTemplate: template.Must(template.New("request-log").Parse(requestLoggingTpl + "\n")),
 	}
@@ -126,9 +124,6 @@ func (h loggingHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	url := *req.URL
 	logger := &responseLogger{w: w}
 	h.handler.ServeHTTP(logger, req)
-	if !h.enabled {
-		return
-	}
 	h.writeLogLine(logger.authInfo, logger.upstream, req, url, t, logger.Status(), logger.Size())
 }
 
@@ -174,4 +169,21 @@ func (h loggingHandler) writeLogLine(username, upstream string, req *http.Reques
 		UserAgent:       fmt.Sprintf("%q", req.UserAgent()),
 		Username:        username,
 	})
+}
+
+// if logging is disabled, more efficient
+// but still need to remove GAP-* metadata response headers via responseLogger
+type noLoggingHandler struct {
+	handler http.Handler
+}
+
+func (h noLoggingHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	logger := &responseLogger{w: w}
+	h.handler.ServeHTTP(logger, req)
+}
+
+func NoLoggingHandler(h http.Handler) http.Handler {
+	return noLoggingHandler{
+		handler: h,
+	}
 }
