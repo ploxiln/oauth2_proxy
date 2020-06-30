@@ -482,9 +482,9 @@ func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
 		log.Printf("invalid redirect: is auth start or sign_in path: %q", redirect)
 		return false
 	}
-	if match, _ := regexp.MatchString(`^/(\s|\v)?(/|\\)`, redirect); match {
-		// matches `//` or `/\` or `/ /` or `/ \` (prevent open-redirect tricks)
-		log.Printf("invalid redirect: multi-slash prefix: %q", redirect)
+	if match, _ := regexp.MatchString(`^[/\\](?:[\s\v]*|\.\.?)[/\\]`, redirect); match {
+		// prevent open-redirect tricks: `//` or `/\` or `/ /` or `/ \` or `/./\\` etc.
+		log.Printf("invalid redirect: tricky prefix: %q", redirect)
 		return false
 	}
 	if strings.HasPrefix(redirect, "/") {
