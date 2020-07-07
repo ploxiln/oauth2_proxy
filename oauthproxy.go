@@ -660,7 +660,9 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *OAuthProxy) AuthenticateOnly(rw http.ResponseWriter, req *http.Request) {
-	preventCaching(rw)
+	// allow caching, do not send no-cache header
+	// typically not accessed directly by browsers
+	// short caching sometimes useful to prevent multiple simultaneous refreshes
 	status := p.Authenticate(rw, req)
 	if status == http.StatusAccepted {
 		rw.WriteHeader(http.StatusAccepted)
