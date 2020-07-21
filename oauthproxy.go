@@ -472,6 +472,8 @@ func (p *OAuthProxy) GetRedirect(req *http.Request) (redirect string, err error)
 	return
 }
 
+var invalidRedirectRe = regexp.MustCompile(`[/\\](?:[\s\v]*|\.\.?)[/\\]`)
+
 func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
 	url, err := url.Parse(redirect)
 	if err != nil {
@@ -482,7 +484,7 @@ func (p *OAuthProxy) IsValidRedirect(redirect string) bool {
 		log.Printf("invalid redirect: is auth start or sign_in path: %q", redirect)
 		return false
 	}
-	if match, _ := regexp.MatchString(`^[/\\](?:[\s\v]*|\.\.?)[/\\]`, redirect); match {
+	if strings.HasPrefix(redirect, "/") && invalidRedirectRe.MatchString(redirect) {
 		// prevent open-redirect tricks: `//` or `/\` or `/ /` or `/ \` or `/./\\` etc.
 		log.Printf("invalid redirect: tricky prefix: %q", redirect)
 		return false
