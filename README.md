@@ -318,6 +318,7 @@ Usage of oauth2_proxy:
   -signature-key string: GAP-Signature request signature key (algorithm:secretkey)
   -skip-auth-preflight: will skip authentication for OPTIONS requests
   -skip-auth-regex value: bypass authentication for requests path's that match (may be given multiple times)
+  -skip-auth-strip-headers: strip upstream request http headers that are normally set by this proxy, also for requests allowed by --skip-auth-regex (default true)
   -skip-oidc-discovery: Skip OIDC discovery (login-url, redeem-url and oidc-jwks-url must be configured)
   -skip-provider-button: will skip sign-in-page to directly reach the next step: oauth/start
   -ssl-insecure-skip-verify: skip validation of certificates presented when using HTTPS
