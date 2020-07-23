@@ -38,7 +38,7 @@ func mainFlagSet() *flag.FlagSet {
 	flagSet.String("basic-auth-password", "", "the password to set when passing the HTTP Basic Auth header")
 	flagSet.Bool("pass-access-token", false, "pass OAuth access_token to upstream via X-Forwarded-Access-Token header")
 	flagSet.Bool("pass-host-header", true, "pass the request Host Header to upstream")
-	flagSet.Var(&skipAuthRegex, "skip-auth-regex", "bypass authentication for requests path's that match (may be given multiple times)")
+	flagSet.Var(&skipAuthRegex, "skip-auth-regex", "bypass authentication for requests with paths that match (may be given multiple times)")
 	flagSet.Bool("skip-auth-strip-headers", true, "strip upstream request http headers that are normally set by this proxy, also for requests allowed by --skip-auth-regex")
 	flagSet.Bool("skip-provider-button", false, "will skip sign-in-page to directly reach the next step: oauth/start")
 	flagSet.Bool("skip-auth-preflight", false, "will skip authentication for OPTIONS requests")
