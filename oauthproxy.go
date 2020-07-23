@@ -73,6 +73,7 @@ type OAuthProxy struct {
 	ClientIPHeader      string
 	CookieCipher        *cookie.Cipher
 	skipAuthRegex       []string
+	skipAuthStripHdrs   bool
 	skipAuthPreflight   bool
 	compiledRegex       []*regexp.Regexp
 	templates           *template.Template
@@ -229,6 +230,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		redirectURL:        redirectURL,
 		whitelistDomains:   opts.WhitelistDomains,
 		skipAuthRegex:      opts.SkipAuthRegex,
+		skipAuthStripHdrs:  opts.SkipAuthStripHeaders,
 		skipAuthPreflight:  opts.SkipAuthPreflight,
 		compiledRegex:      opts.CompiledRegex,
 		SetXAuthRequest:    opts.SetXAuthRequest,
@@ -378,6 +380,22 @@ func (p *OAuthProxy) SaveSession(rw http.ResponseWriter, req *http.Request, s *p
 	}
 	p.SetSessionCookie(rw, req, value)
 	return nil
+}
+
+func (p *OAuthProxy) stripAuthHeaders(req *http.Request) {
+	if !p.skipAuthStripHdrs {
+		return
+	}
+	if p.PassBasicAuth {
+		req.Header.Del("Authorization")
+	}
+	if p.PassUserHeaders {
+		req.Header.Del("X-Forwarded-User")
+		req.Header.Del("X-Forwarded-Email")
+	}
+	if p.PassAccessToken {
+		req.Header.Del("X-Forwarded-Access-Token")
+	}
 }
 
 func (p *OAuthProxy) RobotsTxt(rw http.ResponseWriter) {
@@ -538,6 +556,7 @@ func (p *OAuthProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	case path == p.PingPath:
 		p.PingPage(rw)
 	case p.IsWhitelistedRequest(req):
+		p.stripAuthHeaders(req)
 		p.serveMux.ServeHTTP(rw, req)
 	case path == p.SignInPath:
 		p.SignIn(rw, req)
