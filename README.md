@@ -126,7 +126,7 @@ Note: The user is checked against the group members list on initial authenticati
 ### Azure Auth Provider
 
 1. [Add an application](https://azure.microsoft.com/en-us/documentation/articles/active-directory-integrating-applications/) to your Azure Active Directory tenant.
-2. On the App properties page provide the correct Sign-On URL ie `https://internal.yourcompany.com/oauth2/callback`
+2. On the App properties page provide the correct Sign-On URL e.g. `https://internal.yourcompany.com/oauth2/callback`
 3. If applicable take note of your `TenantID` and provide it via the `--azure-tenant=<YOUR TENANT ID>` commandline option. Default the `common` tenant is used.
 
 The Azure AD auth provider uses `openid` as it default scope. It uses `https://graph.windows.net` as a default protected resource. It call to `https://graph.windows.net/me` to get the email address of the user that logs in.
@@ -140,7 +140,7 @@ The Azure AD auth provider uses `openid` as it default scope. It uses `https://g
 ### GitHub Auth Provider
 
 1. Create a new project: https://github.com/settings/developers
-2. Under `Authorization callback URL` enter the correct url ie `https://internal.yourcompany.com/oauth2/callback`
+2. Under `Authorization callback URL` enter the correct url e.g. `https://internal.yourcompany.com/oauth2/callback`
 
 The GitHub auth provider supports two additional parameters to restrict authentication to Organization or Team level access. Restricting by org and team is normally accompanied with `--email-domain=*`
 
@@ -270,7 +270,7 @@ Usage of oauth2_proxy:
   -azure-tenant string: go to a tenant-specific or common (tenant-independent) endpoint. (default "common")
   -banner string: custom sign-in banner text/html. Use "-" to disable default banner.
   -basic-auth-password string: the password to set when passing the HTTP Basic Auth header
-  -client-id string: the OAuth Client ID: ie: "123456.apps.googleusercontent.com"
+  -client-id string: the OAuth Client ID: e.g. "123456.apps.googleusercontent.com"
   -client-secret string: the OAuth Client Secret
   -config string: path to config file
   -cookie-domain string: an optional cookie domain (e.g. '.yourcompany.com')
@@ -309,7 +309,7 @@ Usage of oauth2_proxy:
   -proxy-websockets: enables WebSocket proxying (default true)
   -real-client-ip-header: HTTP header indicating the actual ip address of the client (blank to disable) (default "X-Real-IP")
   -redeem-url string: Token redemption endpoint
-  -redirect-url string: the OAuth Redirect URL. ie: "https://internalapp.yourcompany.com/oauth2/callback"
+  -redirect-url string: the OAuth Redirect URL. e.g. "https://internalapp.yourcompany.com/oauth2/callback"
   -request-logging: Log requests to stdout (default true)
   -request-logging-format string: Template for request log lines (see "Logging Format" section)
   -resource string: The resource that is protected (Azure AD only)
@@ -335,7 +335,7 @@ Usage of oauth2_proxy:
 
 `oauth2_proxy` supports having multiple upstreams, and has the option to pass requests on to HTTP(S) servers or serve static files from the file system. HTTP and HTTPS upstreams are configured by providing a URL such as `http://127.0.0.1:8080/`, and all authenticated requests will be forwarded to the upstream server. If you instead provide a URL like `http://127.0.0.1:8080/some/path/` then only requests with URL path prefix `/some/path/` are forwarded to the upstream.
 
-Static file paths are configured as a file:// URL. `file:///var/www/static/` will serve the files from that directory at `http://[oauth2_proxy url]/var/www/static/`, which may not be what you want. You can provide the path to where the files should be available by adding a fragment to the configured URL. The value of the fragment will then be used to specify which path the files are available at. `file:///var/www/static/#/static/` will ie. make `/var/www/static/` available at `http://[oauth2_proxy url]/static/`.
+Static file paths are configured as a file:// URL. `file:///var/www/static/` will serve the files from that directory at `http://[oauth2_proxy url]/var/www/static/`, which may not be what you want. You can provide the path to where the files should be available by adding a fragment to the configured URL. The value of the fragment will then be used to specify which path the files are available at. For example, `file:///var/www/static/#/static/` will make `/var/www/static/` available at `http://[oauth2_proxy url]/static/`.
 
 Multiple upstreams can either be configured by supplying a comma separated list to the `-upstream` parameter, supplying the parameter multiple times, or providing a list in the [config file](#config-file). When multiple upstreams are used, routing to them will be based on the path parts of the upstream URL and the request URL.
 
@@ -441,7 +441,7 @@ If `signature_key` is defined, proxied requests will be signed with the
 of selected request information and the request body [see `SIGNATURE_HEADERS`
 in `oauthproxy.go`](./oauthproxy.go).
 
-`signature_key` must be of the form `algorithm:secretkey`, (ie: `signature_key = "sha1:secret0"`)
+`signature_key` must be of the form `algorithm:secretkey`, (e.g. `signature_key = "sha1:secret0"`)
 
 For more information about HMAC request signature validation, read the
 following:
