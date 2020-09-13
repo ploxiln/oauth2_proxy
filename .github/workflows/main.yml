@@ -12,12 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         imgtag:
-          - "golang:1.9-stretch"
-          - "golang:1.10-stretch"
-          - "golang:1.11-buster"
-          - "golang:1.12-buster"
           - "golang:1.13-buster"
           - "golang:1.14-buster"
+          - "golang:1.15-buster"
 
     container: "${{matrix.imgtag}}"
     env:
