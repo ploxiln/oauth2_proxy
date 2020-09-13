@@ -61,7 +61,7 @@ func (s *Server) ServeHTTPS() {
 	addr := s.Opts.HttpsAddress
 	config := &tls.Config{
 		MinVersion: tls.VersionTLS12,
-		MaxVersion: tls.VersionTLS12,
+		MaxVersion: tls.VersionTLS13,
 	}
 	if config.NextProtos == nil {
 		config.NextProtos = []string{"http/1.1"}
