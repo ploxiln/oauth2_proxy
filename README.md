@@ -280,6 +280,7 @@ Usage of oauth2_proxy:
   -cookie-path string: url path under which cookie applies (e.g. '/poc/') (default "/")
   -cookie-refresh duration: refresh the cookie after this duration; 0 to disable
   -cookie-secret string: the seed string for secure cookies (optionally base64 encoded)
+  -cookie-samesite string: set SameSite cookie attribute (lax, strict, none, or "")
   -cookie-secure: set secure (HTTPS) cookie flag (default true)
   -custom-templates-dir string: path to custom html templates
   -display-htpasswd-form: display username / password login form if an htpasswd file is provided (default true)

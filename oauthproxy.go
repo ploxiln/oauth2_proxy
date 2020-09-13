@@ -42,6 +42,7 @@ type OAuthProxy struct {
 	CSRFCookieName string
 	CookieDomain   string
 	CookiePath     string
+	CookieSameSite http.SameSite
 	CookieSecure   bool
 	CookieHttpOnly bool
 	CookieExpire   time.Duration
@@ -192,8 +193,10 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		refresh = fmt.Sprintf("after %s", opts.CookieRefresh)
 	}
 
-	log.Printf("Cookie settings: name:%s secure(https):%v httponly:%v expiry:%s domain:%s path:%s refresh:%s",
-		opts.CookieName, opts.CookieSecure, opts.CookieHttpOnly, opts.CookieExpire, opts.CookieDomain, opts.CookiePath, refresh)
+	log.Printf("Cookie settings: name=%s domain=%s path=%s httponly=%v secure(https)=%v samesite=%s expiry=%s refresh=%s",
+		opts.CookieName, opts.CookieDomain, opts.CookiePath,
+		opts.CookieHttpOnly, opts.CookieSecure, opts.CookieSameSite,
+		opts.CookieExpire, refresh)
 
 	var cipher *cookie.Cipher
 	if opts.PassAccessToken || (opts.CookieRefresh != time.Duration(0)) {
@@ -214,6 +217,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		CookieHttpOnly: opts.CookieHttpOnly,
 		CookieExpire:   opts.CookieExpire,
 		CookieRefresh:  opts.CookieRefresh,
+		CookieSameSite: parseSameSite(opts.CookieSameSite),
 		Validator:      validator,
 
 		RobotsPath:        "/robots.txt",
@@ -317,6 +321,7 @@ func (p *OAuthProxy) makeCookie(req *http.Request, name string, value string, ex
 		Value:    value,
 		Path:     p.CookiePath,
 		Domain:   p.CookieDomain,
+		SameSite: p.CookieSameSite,
 		HttpOnly: p.CookieHttpOnly,
 		Secure:   p.CookieSecure,
 		Expires:  now.Add(expiration),
@@ -326,6 +331,21 @@ func (p *OAuthProxy) makeCookie(req *http.Request, name string, value string, ex
 		log.Printf("WARNING: cookie %q may be too big: %d bytes", name, len(value))
 	}
 	return cookie
+}
+
+func parseSameSite(v string) http.SameSite {
+	switch v {
+	case "lax":
+		return http.SameSiteLaxMode
+	case "strict":
+		return http.SameSiteStrictMode
+	case "none":
+		return http.SameSiteNoneMode
+	case "":
+		return http.SameSiteDefaultMode
+	default:
+		panic(fmt.Sprintf("Invalid value for SameSite: %s", v))
+	}
 }
 
 func (p *OAuthProxy) ClearCSRFCookie(rw http.ResponseWriter, req *http.Request) {
