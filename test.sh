@@ -2,13 +2,13 @@
 EXIT_CODE=0
 
 echo "gofmt"
-FMTDIFF="$(gofmt -d $(find . -type f -name '*.go' -not -path './vendor/*'))"
+FMTDIFF="$(gofmt -d $(find . -type f -name '*.go'))"
 if [ -n "$FMTDIFF" ]; then
     printf '%s\n' "$FMTDIFF"
     EXIT_CODE=1
 fi
 
-for pkg in $(go list ./... | grep -v '/vendor/' ); do
+for pkg in $(go list ./...); do
     echo "testing $pkg"
     echo "go vet $pkg"
     go vet "$pkg" || EXIT_CODE=1

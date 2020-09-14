@@ -1,7 +1,5 @@
 oauth2_proxy
-vendor
 dist
-.godeps
 *.exe
 
 

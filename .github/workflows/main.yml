@@ -24,12 +24,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: ${{env.SRCDIR}}
-      - name: dependencies
-        run: |
-          cd $SRCDIR
-          wget --no-verbose -O dep https://github.com/golang/dep/releases/download/v0.5.4/dep-linux-amd64
-          chmod +x dep
-          ./dep ensure -v
       - name: build
         run: |
           cd $SRCDIR
