@@ -1,13 +1,9 @@
 FROM golang:1.15-alpine
 
 RUN apk update && apk add git
-RUN wget -O /usr/local/bin/dep \
-         https://github.com/golang/dep/releases/download/v0.5.4/dep-linux-amd64 \
- && chmod a+x /usr/local/bin/dep
 
 WORKDIR $GOPATH/src/github.com/ploxiln/oauth2_proxy/
 COPY . .
-RUN dep ensure -v
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /usr/local/bin/oauth2_proxy
 
 

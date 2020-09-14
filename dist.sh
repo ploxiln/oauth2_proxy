@@ -11,8 +11,6 @@ goversion=$(go version | awk '{print $3}')
 rm -rf dist
 mkdir -p dist
 
-dep ensure -v
-
 echo "... running tests"
 ./test.sh
 
